@@ -1869,14 +1869,14 @@
             const canvasSmall = document.createElement('canvas');
             const ratio = video.videoHeight / video.videoWidth;
             
-            canvasSmall.width = 320; 
-            canvasSmall.height = 320 * ratio;
+            canvasSmall.width = 960; 
+            canvasSmall.height = 960 * ratio;
             
             const ctxSmall = canvasSmall.getContext('2d');
             ctxSmall.drawImage(video, 0, 0, canvasSmall.width, canvasSmall.height);
             
             // 使用 0.3 的低质量 JPEG，生成超短字符串
-            const base64Img = canvasSmall.toDataURL('image/jpeg', 0.3);
+            const base64Img = canvasSmall.toDataURL('image/jpeg', 0.9);
 
             // 4. 准备时间
             const now = new Date();
