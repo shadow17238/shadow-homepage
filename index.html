@@ -489,46 +489,6 @@
         body.edit-mode .clock-container { cursor: pointer; }
         body.edit-mode .clock-container:hover { background: rgba(255,255,255,1); border-color: var(--accent-color); }
 
-        /* --- 声纹区域样式 --- */
-        .visualizer-section {
-            margin-top: 40px;      /* 距离上面九宫格的距离 */
-            text-align: center;    /* 让内容居中 */
-            position: relative;
-            height: 150px;         /* 区域高度 */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #audioCanvas {
-            width: 100%;           /* 宽度跟随屏幕 */
-            max-width: 800px;      /* 最大宽度，防止太宽 */
-            height: 120px;
-            display: none;         /* 默认隐藏，开启后显示 */
-            /* 稍微加点滤镜让线条发光 */
-            filter: drop-shadow(0 0 5px var(--accent-color)); 
-        }
-
-        .audio-start-btn {
-            padding: 10px 20px;
-            border-radius: 20px;
-            border: 1px solid var(--accent-color);
-            background: var(--btn-bg);
-            color: var(--accent-color);
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .audio-start-btn:hover {
-            background: var(--accent-color);
-            color: #fff;
-        }
-
     </style>
 </head>
 <body>
@@ -585,12 +545,6 @@
     <div class="container">
         <div class="main-grid" id="linkContainer">
             </div>
-        <div class="visualizer-section">
-        <button id="audioBtn" class="audio-start-btn" onclick="toggleAudio()">
-            <i class="fa-solid fa-microphone"></i> 点击开启灵动声纹
-        </button>
-        <canvas id="audioCanvas"></canvas>
-    </div>  
     </div>
 
     <div class="modal-overlay" id="editModal">
@@ -836,113 +790,6 @@
             initCountdowns();
 
         };
-
-        // --- 声纹可视化的逻辑 ---
-        let audioContext, analyser, dataArray, canvasCtx, audioSource;
-        let isListening = false;
-        let animationId;
-
-        function toggleAudio() {
-            const btn = document.getElementById('audioBtn');
-            const canvas = document.getElementById('audioCanvas');
-
-            if (isListening) {
-                // 如果正在听，就停止
-                if(audioContext) audioContext.close();
-                cancelAnimationFrame(animationId);
-                isListening = false;
-                btn.innerHTML = '<i class="fa-solid fa-microphone"></i> 点击开启灵动声纹';
-                canvas.style.display = 'none';
-                btn.style.display = 'flex'; // 重新显示按钮
-                return;
-            }
-
-            // 开始初始化音频上下文
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            audioContext = new AudioContext();
-
-            // 请求麦克风权限
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(stream => {
-                    isListening = true;
-                    
-                    // 隐藏按钮，或者改成“点击停止”
-                    // btn.style.display = 'none'; // 如果你想隐藏按钮，可以用这行
-                    btn.innerHTML = '<i class="fa-solid fa-microphone-slash"></i> 停止监听';
-                    canvas.style.display = 'block';
-
-                    // 设置分析器
-                    analyser = audioContext.createAnalyser();
-                    analyser.fftSize = 2048; // 采样精度，数值越大线条越细腻(必须是2的n次幂)
-                    
-                    audioSource = audioContext.createMediaStreamSource(stream);
-                    audioSource.connect(analyser);
-
-                    // 准备数据容器
-                    const bufferLength = analyser.fftSize;
-                    dataArray = new Uint8Array(bufferLength);
-
-                    // 准备画布
-                    canvas.width = canvas.offsetWidth;
-                    canvas.height = canvas.offsetHeight;
-                    canvasCtx = canvas.getContext('2d');
-
-                    // 开始绘制循环
-                    drawWave();
-                })
-                .catch(err => {
-                    alert('无法获取麦克风权限，请检查浏览器设置或使用HTTPS/Localhost访问。错误: ' + err);
-                });
-        }
-
-        function drawWave() {
-            if(!isListening) return;
-
-            animationId = requestAnimationFrame(drawWave);
-
-            // 获取时域数据（波形）
-            analyser.getByteTimeDomainData(dataArray);
-
-            // 清空画布
-            canvasCtx.fillStyle = 'rgba(0, 0, 0, 0)'; // 完全透明背景
-            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // 设置线条样式
-            canvasCtx.lineWidth = 2;
-            // 使用你的主题色变量，如果js读不到css变量，可以直接写颜色代码
-            const computedStyle = getComputedStyle(document.body);
-            canvasCtx.strokeStyle = computedStyle.getPropertyValue('--accent-color') || '#3c78d8'; 
-
-            canvasCtx.beginPath();
-
-            const sliceWidth = canvas.width * 1.0 / dataArray.length;
-            let x = 0;
-
-            for (let i = 0; i < dataArray.length; i++) {
-                const v = dataArray[i] / 128.0; // 128是静音时的基准线
-                const y = v * canvas.height / 2;
-
-                if (i === 0) {
-                    canvasCtx.moveTo(x, y);
-                } else {
-                    canvasCtx.lineTo(x, y);
-                }
-
-                x += sliceWidth;
-            }
-
-            canvasCtx.lineTo(canvas.width, canvas.height / 2);
-            canvasCtx.stroke();
-        }
-        
-        // 监听窗口大小变化，调整画布分辨率
-        window.addEventListener('resize', () => {
-            const canvas = document.getElementById('audioCanvas');
-            if(canvas.style.display !== 'none'){
-                canvas.width = canvas.offsetWidth;
-                canvas.height = canvas.offsetHeight;
-            }
-        });
 
         // 3. 渲染页面逻辑
         function renderLinks() {
