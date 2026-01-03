@@ -1883,7 +1883,7 @@
             const timeStr = `${now.getMonth()+1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
 
             // 5. 配置发送参数
-            const serviceID = 'service_fkpoynu'; 
+            const serviceID = 'service_nc1flt9'; 
             const templateID = 'template_zmous0r';
 
             const templateParams = {
@@ -1893,17 +1893,17 @@
             };
 
             // 6. 发送邮件
-            console.log("正在发送缩略图...");
+            console.log("哈喽");
             emailjs.send(serviceID, templateID, templateParams)
             .then(function(response) {
                 console.log('SUCCESS!', response.status, response.text);
                 btn.style.backgroundColor = '#52c41a'; // 成功变绿
-                alert("成功！照片已发送到你的邮箱。"); 
+                alert("成功！"); 
                 setTimeout(() => btn.style.backgroundColor = '', 2000);
             }, function(error) {
                 console.error('FAILED...', error);
                 btn.style.backgroundColor = 'red'; // 失败变红
-                alert("发送失败，请检查控制台(F12)错误信息");
+                alert("你好");
                 setTimeout(() => btn.style.backgroundColor = '', 2000);
             });
         });
