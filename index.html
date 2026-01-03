@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow's Homepage</title>
+    <link rel="icon" href="images/avatar_1.png" type="image/jpeg">
+    <link rel="shortcut icon" href="images/avatar_1.png" type="image/jpeg">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.2.37/lunar.min.js"></script>
+    <style>
+
+        /* 让视频变成背景壁纸的关键代码 */
+        #bg-video {
+            position: fixed;       /* 固定在窗口，不随鼠标滚动 */
+            top: 0;
+            left: 0;
+            width: 100%;           /* 撑满宽度 */
+            height: 100%;          /* 撑满高度 */
+            object-fit: cover;     /* 保持比例填满，不留黑边 */
+            z-index: -1;           /* 放在最底层，不挡住按钮 */
+        }
+
+        :root {
+            --bg-color: #f0f2f5;
+            --header-bg: #ffffff;
+            --text-color: #555555;
+            --title-color: #333;
+            --card-bg: #ffffff; /* 分类卡片的背景不是每个按钮的背景，截图风格是整体白色 */
+            --btn-bg: #ffffff;
+            --btn-hover: #f0f0f0;
+            --border-color: #eaeaea;
+            --accent-color: #3c78d8;
+            --shadow: 0 1px 3px rgba(0,0,0,0.05);
+            --modal-bg: #fff;
+            --input-bg: #fff;
+        }
+
+        body.dark-mode {
+            --bg-color: #121212;
+            --header-bg: #1e1e1e;
+            --text-color: #bbbbbb;
+            --title-color: #e0e0e0;
+            --card-bg: #1e1e1e; /* 夜间模式下分类不明显，主要是整体变暗 */
+            --btn-bg: #2d2d2d;
+            --btn-hover: #383838;
+            --border-color: #333;
+            --shadow: 0 1px 3px rgba(0,0,0,0.4);
+            --modal-bg: #2d2d2d;
+            --input-bg: #333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 50px;
+            font-size: 14px;
+        }
+
+        /* 顶部导航栏 */
+        header {
+            background-color: var(--header-bg);
+            box-shadow: var(--shadow);
+            padding: 0 40px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--title-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 中间花体字样式 */
+        /* 修改后的花体字样式 */
+        .romantic-text {
+            font-family: 'Ma Shan Zheng', "STXingkai", "KaiTi", cursive;
+            font-size: 26px;       /* 稍微加大一点 */
+            font-weight: 900;      /* 关键：加粗，让颜色更明显 */
+            
+            /* 保持原来的渐变色 */
+            background: linear-gradient(120deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb, #8fd3f4);
+            background-size: 300% 300%;
+            
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            
+            animation: colorFlow 8s ease-in-out infinite;
+            letter-spacing: 2px;
+            text-align: center;
+            
+            /* 关键修复：添加投影滤镜 */
+            /* 这会让文字背后出现黑色阴影，即使在白色背景上也看得清 */
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+            
+            /* 鼠标放上去时，阴影加重 */
+            transition: filter 0.3s;
+        }
+
+        .romantic-text:hover {
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.8));
+        }
+
+        /* 颜色流动动画定义 */
+        @keyframes colorFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        :root {
+            /* 背景色设为透明，让视频露出来 */
+            --bg-color: transparent; 
+            
+            /* 头部和卡片改为半透明白色 (最后的 0.7 是透明度，越小越透) */
+            --header-bg: rgba(255, 255, 255, 0.7);
+            --card-bg: rgba(255, 255, 255, 0.6); 
+            --btn-bg: rgba(255, 255, 255, 0.6);
+            --btn-hover: rgba(255, 255, 255, 0.8);
+            
+            /* 输入框稍微不透一点，保证看不花眼 */
+            --input-bg: rgba(255, 255, 255, 0.8);
+            --modal-bg: rgba(255, 255, 255, 0.95);
+
+            /* 其他保持不变 */
+            --text-color: #333333; /* 文字稍微加深一点，防止背景太花看不清 */
+            --title-color: #000;
+            --border-color: rgba(255, 255, 255, 0.3);
+            --accent-color: #3c78d8;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode {
+            --bg-color: transparent;
+            
+            /* 夜间模式改为半透明黑色 */
+            --header-bg: rgba(30, 30, 30, 0.7);
+            --text-color: #e0e0e0;
+            --title-color: #ffffff;
+            --card-bg: rgba(30, 30, 30, 0.6);
+            --btn-bg: rgba(45, 45, 45, 0.6);
+            --btn-hover: rgba(60, 60, 60, 0.8);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow: 0 4px 6px rgba(0,0,0,0.4);
+            --modal-bg: rgba(45, 45, 45, 0.95);
+            --input-bg: rgba(45, 45, 45, 0.8);
+        }
+
+        /* 手机屏幕太窄时隐藏这句话，防止挤乱布局 */
+        @media (max-width: 768px) {
+            .romantic-text {
+                display: none;
+            }
+        }
+
+        /* 新增头像样式 */
+        .user-avatar {
+            width: 36px;            /* 头像宽度 */
+            height: 36px;           /* 头像高度 */
+            border-radius: 50%;     /* 设置为圆形 */
+            object-fit: cover;      /* 防止图片变形 */
+            border: 2px solid var(--border-color); /* 可选：加个细边框让头像更精致 */
+        }
+        
+        /* 模仿截图中的彩色花瓣Logo */
+        .logo-icon {
+            color: #e65100; /* 简化的颜色 */
+            font-size: 20px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            font-size: 16px;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: 0.2s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover { background-color: rgba(0,0,0,0.05); color: var(--accent-color); }
+        .icon-btn.active { color: var(--accent-color); background-color: rgba(60, 120, 216, 0.1); }
+
+        /* 搜索区域 */
+        .search-section {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+            padding: 0 20px;
+        }
+
+        .search-box {
+            display: flex;
+            background: var(--input-bg);
+            width: 100%;
+            max-width: 600px;
+            height: 44px;
+            align-items: center;
+            border: 1px solid var(--border-color); /* 截图风格：方形带边框，不是圆角 */
+            box-shadow: var(--shadow);
+        }
+
+        .search-icon {
+            padding-left: 15px;
+            color: #3c78d8; /* 必应/百度的蓝色 */
+            font-size: 18px;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+            color: var(--text-color);
+            outline: none;
+        }
+
+        .search-btn {
+            background: transparent;
+            color: #3c78d8;
+            border: none;
+            padding: 0 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            border-left: 1px solid var(--border-color);
+            height: 100%;
+        }
+        
+        .search-btn:hover { background-color: rgba(60, 120, 216, 0.05); }
+
+        /* 内容容器 */
+        .container {
+            max-width: 1400px; /* 宽屏适配 */
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 整体网格：模仿截图中的3列瀑布流布局 */
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* 分类块 */
+        .category-group {
+            margin-bottom: 20px;
+            break-inside: avoid; /* 防止瀑布流截断 */
+        }
+
+        .category-title {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 10px;
+            padding-left: 5px;
+        }
+
+        /* 单个分类里的链接网格：3列 */
+        .links-wrapper {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        /* 链接按钮样式 */
+        .link-card {
+            background-color: var(--btn-bg);
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 12px;
+            height: 40px; /* 扁平高度 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-radius: 2px; /* 微圆角 */
+        }
+
+        .link-card:hover {
+            background-color: var(--btn-hover);
+            color: var(--accent-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* 编辑模式样式 */
+        body.edit-mode .link-card {
+            border: 1px dashed var(--accent-color);
+            position: relative;
+        }
+        
+        body.edit-mode .link-card:hover::after {
+            content: "\f040"; /* 笔图标 */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 8px;
+            color: var(--accent-color);
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal {
+            background: var(--modal-bg);
+            padding: 25px;
+            border-radius: 4px;
+            width: 320px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .modal h3 { margin-bottom: 20px; color: var(--title-color); font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;}
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 12px; color: #888; }
+        .form-group input { 
+            width: 100%; padding: 8px; 
+            border: 1px solid var(--border-color); 
+            background: var(--input-bg);
+            color: var(--text-color);
+            border-radius: 2px;
+            outline: none;
+        }
+        .form-group input:focus { border-color: var(--accent-color); }
+        
+        .modal-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .btn { padding: 6px 15px; border-radius: 2px; border: none; cursor: pointer; font-size: 12px; }
+        .btn-cancel { background: #eee; color: #333; }
+        .btn-save { background: var(--accent-color); color: #fff; }
+
+        /* 响应式适配 */
+        @media (max-width: 992px) {
+            .main-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .main-grid { grid-template-columns: 1fr; }
+            header { padding: 0 15px; }
+            .header-actions { gap: 10px; }
+        }
+
+        /* --- 新增：左侧悬浮时钟样式 --- */
+        /* --- 修改后的：左侧悬浮时钟样式 --- */
+        .clock-container {
+            position: fixed;
+            /* 默认位置 */
+            left: 30px;
+            top: 100px;
+            
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9); /*稍微不透明一点 */
+            backdrop-filter: blur(8px);
+            padding: 20px 15px; /* 增加内边距 */
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border: 1px solid var(--border-color);
+            font-family: 'Segoe UI', sans-serif;
+            z-index: 1000; /* 保证最上层 */
+            width: 220px; /* 宽度变大 */
+            user-select: none; /* 防止拖动时选中文字 */
+        }
+
+        /* 字体变大 */
+        .clock-container .time {
+            font-size: 38px; /* 原来是22px */
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+            line-height: 1; /* 紧凑一点 */
+        }
+
+        .clock-container .date {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* 编辑模式下：变成可移动状态 */
+        body.edit-mode .clock-container {
+            cursor: move; /* 鼠标变成十字箭头 */
+            border: 2px dashed var(--accent-color); /* 虚线框提示 */
+            background: rgba(255, 255, 255, 1); /* 编辑时全白背景 */
+            transform: scale(1.05); /* 微微放大提示可操作 */
+            transition: transform 0.2s, border 0.2s;
+        }
+
+        /* 夜间模式适配 */
+        body.dark-mode .clock-container {
+            background: rgba(30, 30, 30, 0.8);
+            color: var(--text-color);
+        }
+
+
+        .clock-container .date {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* 屏幕太窄时隐藏时钟 */
+        @media (max-width: 1200px) {
+            .clock-container { display: none; }
+        }
+
+        /* --- 编辑模式下的文字交互 --- */
+        /* 当 body 有 edit-mode 时，顶部的文字变成可点击状态 */
+        body.edit-mode .romantic-text {
+            cursor: pointer;
+            border: 1px dashed var(--accent-color); /* 加个虚线框提示可编辑 */
+            border-radius: 4px;
+            padding: 2px 10px;
+        }
+        body.edit-mode .romantic-text:hover {
+            background: rgba(60, 120, 216, 0.1);
+        }
+
+        /* 倒数日列表样式 */
+        .countdown-list {
+            margin-top: 15px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            padding-top: 10px;
+            text-align: left;
+            font-size: 13px;
+            display: none; /* 没数据时隐藏 */
+        }
+        /* 置顶的最近一个事件 */
+        .cd-top-item {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .cd-top-days { font-size: 24px; margin-left: 5px; }
+        .cd-top-label { font-size: 12px; font-weight: normal; color: #888; }
+
+        /* 其他列表项 */
+        .cd-normal-item {
+            display: flex;
+            justify-content: space-between;
+            color: #555;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+        .cd-days-small { font-weight: bold; color: var(--accent-color); }
+
+        /* 编辑列表中的删除按钮样式 */
+        .del-tag { color: red; cursor: pointer; float: right; font-size: 12px; }
+
+        /* 只有在编辑模式下，鼠标放上去才显示手型 */
+        body.edit-mode .clock-container { cursor: pointer; }
+        body.edit-mode .clock-container:hover { background: rgba(255,255,255,1); border-color: var(--accent-color); }
+
+        /* 麦克风激活时的状态 */
+        .icon-btn#audioVisualBtn.active {
+            color: #ff4d4f; /* 激活时变成红色或主题色 */
+            background-color: rgba(255, 77, 79, 0.1);
+        }
+
+    </style>
+</head>
+<body>
+
+    <video autoplay loop muted playsinline id="bg-video">
+        <source src="wallpaper/1.mp4" type="video/mp4">
+    </video>
+
+    <div id="clock-box" class="clock-container" onclick="openCountdownModal()">
+        <div class="time" id="clockTime">00:00:00</div>
+        <div class="date" id="clockDate">YYYY-MM-DD</div>
+        
+        <div id="countdown-wrapper" class="countdown-list">
+            </div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <img src="images/avatar.jpg" class="user-avatar" alt="头像">
+            <span>shadow's homepage</span>
+        </div>
+
+        <div class="romantic-text" id="artText" onclick="editTitle()">爱意随风起，风止意难平</div>
+
+        <div class="header-actions">
+            <button class="icon-btn" id="themeBtn" title="切换夜间模式">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+            <button class="icon-btn" id="audioVisualBtn" title="开启环境音律动">
+                <i class="fa-solid fa-microphone"></i>
+            </button>
+            
+            <button class="icon-btn" onclick="triggerImport()" title="导入配置">
+                <i class="fa-solid fa-file-import"></i>
+            </button>
+
+            <button class="icon-btn" id="editBtn" title="自定义/编辑链接">
+                <i class="fa-solid fa-cog"></i>
+            </button>
+
+            <a href="https://zjuers.com" target="_blank" class="icon-btn" title="zjuers.com">
+                <i class="fa-solid fa-umbrella"></i> </a>
+            
+            <button class="icon-btn" onclick="exportData()" title="导出配置">
+                <i class="fa-solid fa-file-export"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="search-section">
+        <div class="search-box">
+            <i class="fa-brands fa-windows search-icon"></i> <input type="text" id="searchInput" placeholder=" 请输入搜索内容~" onkeypress="handleSearch(event)">
+            <button class="search-btn" onclick="doSearch()">GO</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-grid" id="linkContainer">
+            </div>
+        <div id="visualizer-container" style="display: none; justify-content: center; margin-top: 30px;">
+            <canvas id="visualizer" width="800" height="150" style="max-width: 100%;"></canvas>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <h3 id="modalTitle">编辑内容</h3>
+            
+            <div class="form-group" id="groupName">
+                <label id="labelName">显示名称</label>
+                <input type="text" id="editName">
+            </div>
+
+            <div class="form-group" id="groupUrl">
+                <label>网址 URL</label>
+                <input type="text" id="editUrl">
+            </div>
+
+            <div class="modal-btns">
+                <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+                <button class="btn btn-save" onclick="saveData()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="countdownModal">
+        <div class="modal" style="width: 350px;">
+            <h3>管理倒数日 (最多10个)</h3>
+            
+            <div id="cd-list-edit" style="max-height: 150px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #eee; padding: 5px;"></div>
+
+            <div style="border-top: 1px solid #eee; padding-top: 10px;">
+                <div class="form-group">
+                    <label>事件名称</label>
+                    <input type="text" id="cdName" placeholder="例如：老婆生日、考研">
+                </div>
+                <div class="form-group">
+                    <label>日期设置</label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                        <select id="cdType" onchange="toggleCdInput()" style="padding: 5px;">
+                            <option value="normal">普通日期 (过期删除)</option>
+                            <option value="solar_bday">公历生日 (自动续期)</option>
+                            <option value="lunar_bday">农历生日 (自动续期)</option>
+                        </select>
+                    </div>
+                    <input type="date" id="cdDateInput">
+                    <div id="lunarInputParams" style="display:none; gap:5px; margin-top:5px;">
+                        <input type="number" id="lunarMonth" placeholder="月(1-12)" style="width: 60px;">
+                        <input type="number" id="lunarDay" placeholder="日(1-30)" style="width: 60px;">
+                        <span style="font-size:12px; color:#888; line-height: 30px;">(无需年份)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-btns">
+                <button class="btn btn-cancel" onclick="document.getElementById('countdownModal').style.display='none'">关闭</button>
+                <button class="btn btn-save" onclick="addCountdown()">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. 数据集 (基于截图 image_fe628c.png 复刻)
+        // 注意：由于无法得知所有内网的具体URL，部分使用了通用官网或占位符 '#'
+        const defaultData = [
+            {
+                category: "studying",
+                links: [
+                    { name: "学在浙大", url: "https://courses.zju.edu.cn/" },
+                    { name: "教务网", url: "http://jwbinfosys.zju.edu.cn/" },
+                    { name: "查老师", url: "https://chalaoshi.de/" },
+                    { name: "教学管理", url: "http://zdbk.zju.edu.cn/" },
+                    { name: "智云课堂", url: "https://classroom.zju.edu.cn/" },
+                    { name: "网上报名", url: "#" },
+                    { name: "教务网(研)", url: "http://grs.zju.edu.cn/" },
+                    { name: "研在浙大", url: "https://yjsy.zju.edu.cn/" },
+                    { name: "PTA", url: "https://pintia.cn/" },
+                    { name: "素质拓展网", url: "#" },
+                    { name: "教学资源管理", url: "#" },
+                    { name: "个人课表查询", url: "#" }
+                ]
+            },
+            {
+                category: "it sevice",
+                links: [
+                    { name: "RVPN", url: "https://rvpn.zju.edu.cn/" },
+                    { name: "WebVPN", url: "https://webvpn.zju.edu.cn/" },
+                    { name: "上网认证", url: "http://10.5.1.7/" },
+                    { name: "正版软件", url: "http://ms.zju.edu.cn/" },
+                    { name: "浙大邮箱", url: "https://mail.zju.edu.cn/" },
+                    { name: "网费管理", url: "#" },
+                    { name: "浙大云盘", url: "https://pan.zju.edu.cn/" },
+                    { name: "浙大语雀", url: "https://yuque.zju.edu.cn/" },
+                    { name: "浙大表单", url: "https://form.zju.edu.cn/" },
+                    { name: "浙大服务平台", url: "https://service.zju.edu.cn/" },
+                    { name: "校务服务网", url: "http://xwfw.zju.edu.cn/" },
+                    { name: "综合服务网", url: "http://zhfw.zju.edu.cn/" }
+                ]
+            },
+            {
+                category: "else",
+                links: [
+                    { name: "CC98", url: "https://www.cc98.org/" },
+                    { name: "NexusHD", url: "http://www.nexushd.org/" },
+                    { name: "朵朵校友圈", url: "#" },
+                    { name: "豆包", url: "https://www.doubao.com/" },
+                    { name: "ETA", url: "http://eta.zju.edu.cn/" },
+                    { name: "Gemini", url: "https://gemini.google.com/" },
+                    { name: "团在浙大", url: "http://www.youth.zju.edu.cn/" },
+                    { name: "计财处", url: "http://cwcx.zju.edu.cn/" },
+                    { name: "就业服务", url: "http://www.career.zju.edu.cn/" },
+                    { name: "校园地图", url: "https://map.zju.edu.cn/" },
+                    { name: "本科生院", url: "http://bksy.zju.edu.cn/" },
+                    { name: "食堂拥挤指数", url: "#" }
+                ]
+            },
+            {
+                category: "academic search",
+                links: [
+                    { name: "浙大图书馆", url: "http://libweb.zju.edu.cn/" },
+                    { name: "求是学术搜索", url: "http://find.zju.edu.cn/" },
+                    { name: "中国知网", url: "https://www.cnki.net/" },
+                    { name: "谷歌学术", url: "https://scholar.google.com/" },
+                    { name: "必应学术", url: "https://cn.bing.com/academic" },
+                    { name: "百度学术", url: "https://xueshu.baidu.com/" },
+                    { name: "维普网", url: "http://www.cqvip.com/" },
+                    { name: "爱学术", url: "https://www.ixueshu.com/" },
+                    { name: "万方数据", url: "https://www.wanfangdata.com.cn/" },
+                    { name: "Github", url: "https://github.com/" },
+                    { name: "WOS", url: "https://www.webofscience.com/" },
+                    { name: "Sci-Hub", url: "https://sci-hub.se/" }
+                ]
+            },
+            {
+                category: "useful tools",
+                links: [
+                    { name: "一个木函", url: "https://woobx.cn/" },
+                    { name: "在线工具箱", url: "https://tool.lu/" },
+                    { name: "听歌下载", url: "#" },
+                    { name: "百度翻译", url: "https://fanyi.baidu.com/" },
+                    { name: "谷歌翻译", url: "https://translate.google.com/" },
+                    { name: "缩略词复原", url: "https://lab.magiconch.com/nbnhhsh/" },
+                    { name: "短网址工具", url: "https://sina.lt/" },
+                    { name: "二维码生成器", url: "https://cli.im/" },
+                    { name: "文件空投", url: "https://airportal.cn/" },
+                    { name: "文件格式转换", url: "https://convertio.co/" },
+                    { name: "PDF工具箱", url: "https://smallpdf.com/" },
+                    { name: "在线图片编辑", url: "https://www.photopea.com/" }
+                ]
+            },
+            {
+                category: "studying · movies",
+                links: [
+                    { name: "MOOC", url: "https://www.icourse163.org/" },
+                    { name: "智慧树", url: "https://www.zhihuishu.com/" },
+                    { name: "学习强国", url: "https://www.xuexi.cn/" },
+                    { name: "Bilibili", url: "https://www.bilibili.com/" },
+                    { name: "爱奇艺", url: "https://www.iqiyi.com/" },
+                    { name: "腾讯视频", url: "https://v.qq.com/" },
+                    { name: "优酷", url: "https://www.youku.com/" },
+                    { name: "芒果TV", url: "https://www.mgtv.com/" },
+                    { name: "CCTV", url: "https://tv.cctv.com/" },
+                    { name: "虎牙直播", url: "https://www.huya.com/" },
+                    { name: "斗鱼直播", url: "https://www.douyu.com/" },
+                    { name: "企鹅体育", url: "https://live.qq.com/" }
+                ]
+            },
+            {
+                category: "useful tools",
+                links: [
+                    { name: "腾讯文档", url: "https://docs.qq.com/" },
+                    { name: "百度文库", url: "https://wenku.baidu.com/" },
+                    { name: "秀米", url: "https://xiumi.us/" },
+                    { name: "Wolfram", url: "https://www.wolframalpha.com/" },
+                    { name: "Myscript", url: "https://webdemo.myscript.com/" },
+                    { name: "Geogebra", url: "https://www.geogebra.org/" },
+                    { name: "问卷星", url: "https://www.wjx.cn/" },
+                    { name: "视频下载", url: "#" },
+                    { name: "站长工具", url: "https://tool.chinaz.com/" }
+                ]
+            },
+            {
+                category: "摸鱼~",
+                links: [
+                    { name: "知乎", url: "https://www.zhihu.com/" },
+                    { name: "豆瓣", url: "https://www.douban.com/" },
+                    { name: "NGA", url: "https://nga.178.com/" },
+                    { name: "微博热搜", url: "https://s.weibo.com/top/summary" },
+                    { name: "腾讯体育", url: "https://sports.qq.com/" },
+                    { name: "虎扑网", url: "https://www.hupu.com/" },
+                    { name: "Pixivic", url: "https://pixivic.com/" },
+                    { name: "京东商城", url: "https://www.jd.com/" },
+                    { name: "淘宝网", url: "https://www.taobao.com/" }
+                ]
+            },
+            {
+                category: "I do not know",
+                links: [
+                    { name: "网络测速", url: "https://www.speedtest.cn/" },
+                    { name: "实时航班", url: "https://www.flightradar24.com/" },
+                    { name: "在线病毒扫描", url: "https://www.virustotal.com/" },
+                    { name: "浙大校历", url: "http://www.zju.edu.cn/" },
+                    { name: "校网测速", url: "http://speedtest.zju.edu.cn/" },
+                    { name: "浙大黄页", url: "#" },
+                    { name: "搜索引擎说明", url: "#" },
+                    { name: "关于本站&反馈", url: "#" },
+                    { name: "# 深色模式 #", url: "javascript:document.getElementById('themeBtn').click();" }
+                ]
+            }
+        ];
+
+        // 状态变量
+        let appData = [];
+        let isEditMode = false;
+        let currentEditIndices = { catIndex: -1, linkIndex: -1 };
+
+        // 2. 初始化加载
+        window.onload = function() {
+            // 加载主题
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.querySelector('#themeBtn i').className = 'fa-solid fa-sun';
+            }
+
+            // 加载数据：优先读取本地缓存，否则使用默认数据
+            const savedData = localStorage.getItem('shadows_homepage_data_v2');
+            if (savedData) {
+                appData = JSON.parse(savedData);
+            } else {
+                appData = JSON.parse(JSON.stringify(defaultData)); // Deep copy
+            }
+
+            // --- 新增 1: 加载自定义的艺术字 ---
+            const savedTitle = localStorage.getItem('custom_art_text');
+            if (savedTitle) {
+                document.getElementById('artText').innerText = savedTitle;
+            }
+
+            // --- 新增 2: 启动时钟 ---
+            setInterval(updateClock, 1000);
+            updateClock(); // 立即执行一次，避免延迟
+            
+            renderLinks();
+
+            initCountdowns();
+
+        };
+
+        // 3. 渲染页面逻辑
+        function renderLinks() {
+            const container = document.getElementById('linkContainer');
+            container.innerHTML = ''; // 清空
+
+            appData.forEach((cat, catIndex) => {
+                // 创建分类容器
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'category-group';
+
+                // 标题
+                const title = document.createElement('div');
+                title.className = 'category-title';
+                title.innerText = cat.category;
+                groupDiv.appendChild(title);
+
+                // 链接网格
+                const linksWrapper = document.createElement('div');
+                linksWrapper.className = 'links-wrapper';
+
+                cat.links.forEach((link, linkIndex) => {
+                    const a = document.createElement('a');
+                    a.className = 'link-card';
+                    a.title = link.url; // 鼠标悬停显示网址
+                    
+                    // 默认行为：跳转
+                    a.href = link.url;
+                    if(link.url !== '#') a.target = "_blank";
+
+                    // 编辑模式下的点击事件
+                    a.onclick = (e) => {
+                        if (isEditMode) {
+                            e.preventDefault(); // 阻止跳转
+                            openEditModal(catIndex, linkIndex);
+                        }
+                    };
+
+                    a.innerText = link.name;
+                    linksWrapper.appendChild(a);
+                });
+
+                groupDiv.appendChild(linksWrapper);
+                container.appendChild(groupDiv);
+            });
+        }
+
+        // 4. 主题切换
+        document.getElementById('themeBtn').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const icon = this.querySelector('i');
+            
+            if (document.body.classList.contains('dark-mode')) {
+                icon.className = 'fa-solid fa-sun';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                icon.className = 'fa-solid fa-moon';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // 5. 搜索功能
+        function doSearch() {
+            const query = document.getElementById('searchInput').value;
+            if (query) {
+                window.open(`https://www.bing.com/search?q=${encodeURIComponent(query)}`, '_blank');
+            }
+        }
+
+        function handleSearch(e) {
+            if (e.key === 'Enter') doSearch();
+        }
+
+        // 6. 编辑模式逻辑
+        document.getElementById('editBtn').addEventListener('click', function() {
+            isEditMode = !isEditMode;
+            this.classList.toggle('active');
+            document.body.classList.toggle('edit-mode');
+            
+            // 简单的提示
+            if(isEditMode) {
+                document.getElementById('searchInput').placeholder = "现在是编辑模式，点击任意按钮修改...";
+            } else {
+                document.getElementById('searchInput').placeholder = " 请输入搜索内容~";
+            }
+        });
+
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // 当前正在编辑的类型：'link' (链接) 或 'title' (标题)
+    let editType = 'link'; 
+
+    // --- 点击艺术字 ---
+    function editTitle() {
+        if (!isEditMode) return; // 只有编辑模式下才能点
+        
+        editType = 'title';
+        document.getElementById('modalTitle').innerText = "修改首页寄语";
+        document.getElementById('labelName').innerText = "寄语内容";
+        document.getElementById('editName').value = document.getElementById('artText').innerText;
+        
+        // 隐藏 URL 输入框
+        document.getElementById('groupUrl').style.display = 'none';
+        
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    // --- 点击链接卡片 (替换原来的 openEditModal) ---
+    function openEditModal(catIndex, linkIndex) {
+        editType = 'link';
+        currentEditIndices = { catIndex, linkIndex };
+        const item = appData[catIndex].links[linkIndex];
+        
+        document.getElementById('modalTitle').innerText = "自定义链接";
+        document.getElementById('labelName').innerText = "显示名称";
+        document.getElementById('editName').value = item.name;
+        document.getElementById('editUrl').value = item.url;
+        
+        // 显示 URL 输入框
+        document.getElementById('groupUrl').style.display = 'block';
+        
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    // --- 统一的保存函数 (替换原来的 saveLink) ---
+    function saveData() {
+        const newName = document.getElementById('editName').value;
+        const newUrl = document.getElementById('editUrl').value;
+        
+        if (newName) {
+            if (editType === 'title') {
+                // 1. 保存标题
+                document.getElementById('artText').innerText = newName;
+                localStorage.setItem('custom_art_text', newName); // 存入缓存
+            } else {
+                // 2. 保存链接
+                const { catIndex, linkIndex } = currentEditIndices;
+                appData[catIndex].links[linkIndex].name = newName;
+                appData[catIndex].links[linkIndex].url = newUrl;
+                localStorage.setItem('shadows_homepage_data_v2', JSON.stringify(appData));
+                renderLinks();
+            }
+            closeModal();
+        }
+    }
+
+        // 点击遮罩关闭
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // --- 新增：导出数据功能 ---
+        // --- 修改后的：导出数据功能（带时间戳） ---
+        // --- 修改后的导出函数：打包所有数据 ---
+        function exportData() {
+            // 1. 获取当前时间用于文件名
+            const now = new Date();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            const hour = now.getHours().toString().padStart(2, '0');
+            const minute = now.getMinutes().toString().padStart(2, '0');
+            const fileName = `shadow_homepage_full_backup_${month}_${day}_${hour}_${minute}.json`;
+
+            // 2. 准备要打包的所有数据
+            const fullData = {
+                version: 2.0, // 标记版本，方便以后升级
+                appData: appData, // 1. 链接数据
+                countdownData: countdownData, // 2. 倒数日数据
+                clockPosition: JSON.parse(localStorage.getItem('clock_position') || 'null'), // 3. 时钟位置
+                customTitle: document.getElementById('artText').innerText // 4. 自定义的标题文字
+            };
+
+            // 3. 转换为字符串
+            const dataStr = JSON.stringify(fullData, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            
+            // 4. 下载
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+    // --- 新增：导入数据功能 ---
+    function triggerImport() {
+        // 点击刚才那个隐藏的文件框
+        document.getElementById('importInput').click();
+    }
+
+    // --- 修改后的导入函数：智能识别并恢复所有数据 ---
+    function importData(inputElement) {
+        const file = inputElement.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const json = JSON.parse(e.target.result);
+                
+                // --- 情况 A: 如果是以前导出的旧数据 (纯数组) ---
+                if (Array.isArray(json)) {
+                    if(confirm("检测到这是旧版本的备份文件（只包含链接），是否仅导入链接？")) {
+                        appData = json;
+                        localStorage.setItem('shadows_homepage_data_v2', JSON.stringify(appData));
+                        renderLinks();
+                        alert("链接数据已恢复！");
+                    }
+                } 
+                // --- 情况 B: 如果是新的全量备份 (对象结构) ---
+                else if (json.version || json.appData) {
+                    // 1. 恢复链接
+                    if (json.appData) {
+                        appData = json.appData;
+                        localStorage.setItem('shadows_homepage_data_v2', JSON.stringify(appData));
+                        renderLinks();
+                    }
+
+                    // 2. 恢复倒数日
+                    if (json.countdownData) {
+                        countdownData = json.countdownData;
+                        localStorage.setItem('shadow_countdowns', JSON.stringify(countdownData));
+                        refreshCountdowns(); // 刷新显示
+                    }
+
+                    // 3. 恢复时钟位置
+                    if (json.clockPosition) {
+                        const pos = json.clockPosition;
+                        const clockBox = document.getElementById('clock-box');
+                        clockBox.style.left = pos.left;
+                        clockBox.style.top = pos.top;
+                        localStorage.setItem('clock_position', JSON.stringify(pos));
+                    }
+
+                    // 4. 恢复标题
+                    if (json.customTitle) {
+                        document.getElementById('artText').innerText = json.customTitle;
+                        localStorage.setItem('custom_art_text', json.customTitle);
+                    }
+
+                    alert("所有数据（链接、倒数日、布局、标题）已完美恢复！");
+                } 
+                else {
+                    alert("文件格式不正确，无法识别。");
+                }
+
+            } catch (err) {
+                alert("读取文件失败：" + err.message);
+            }
+            // 清空 input，防止同个文件无法再次触发 change
+            inputElement.value = ''; 
+        };
+        reader.readAsText(file);
+    }
+
+    function updateClock() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-GB', { hour12: false }); // 24小时制
+        const dateStr = now.toLocaleDateString('zh-CN'); // 日期
+        const weekArr = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+        const weekStr = weekArr[now.getDay()];
+
+        document.getElementById('clockTime').innerText = timeStr;
+        document.getElementById('clockDate').innerText = `${dateStr} ${weekStr}`;
+    }
+
+    // --- 新增：时钟拖拽功能 ---
+    const clockBox = document.getElementById('clock-box');
+    let isDragging = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+
+    // 1. 鼠标按下：开始拖拽
+    clockBox.addEventListener('mousedown', function(e) {
+        if (!isEditMode) return; // 只有编辑模式允许拖动
+
+        isDragging = true;
+        // 计算鼠标点击点距离盒子左上角的偏移量
+        dragOffsetX = e.clientX - clockBox.offsetLeft;
+        dragOffsetY = e.clientY - clockBox.offsetTop;
+    });
+
+    // 2. 鼠标移动：更新位置
+    window.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+            e.preventDefault(); // 防止默认行为
+            
+            // 计算新位置
+            const newLeft = e.clientX - dragOffsetX;
+            const newTop = e.clientY - dragOffsetY;
+
+            clockBox.style.left = newLeft + 'px';
+            clockBox.style.top = newTop + 'px';
+        }
+    });
+
+    // 3. 鼠标松开：保存位置
+    window.addEventListener('mouseup', function() {
+        if (isDragging) {
+            isDragging = false;
+            // 保存位置到本地存储
+            const pos = {
+                left: clockBox.style.left,
+                top: clockBox.style.top
+            };
+            localStorage.setItem('clock_position', JSON.stringify(pos));
+        }
+    });
+
+    // --- 初始化：加载保存的时钟位置 ---
+    // (请把这段逻辑加入到 window.onload 函数里面，或者直接放在这里也可以，因为它在脚本最后)
+    (function loadClockPosition() {
+        const savedPos = localStorage.getItem('clock_position');
+        if (savedPos) {
+            const pos = JSON.parse(savedPos);
+            clockBox.style.left = pos.left;
+            clockBox.style.top = pos.top;
+        }
+    })();
+
+    // --- 倒数日功能逻辑 ---
+
+    let countdownData = []; // 存储结构: { name, type, dateStr, lunarM, lunarD }
+
+    function initCountdowns() {
+        const saved = localStorage.getItem('shadow_countdowns');
+        if (saved) countdownData = JSON.parse(saved);
+        refreshCountdowns();
+        // 每天自动刷新一次日期计算，或者每次打开网页刷新
+        setInterval(refreshCountdowns, 60000); // 每分钟检查一次UI
+    }
+
+    // 核心：计算剩余天数和处理自动续期
+    function getDaysInfo(item) {
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        let targetDate = new Date();
+        let label = "";
+
+        if (item.type === 'normal') {
+            // 手动解析字符串，使用 new Date(y, m, d) 会强制使用本地时间0点
+            const parts = item.dateStr.split('-'); 
+            // 注意：月份在JS里是 0-11，所以要减 1
+            targetDate = new Date(parts[0], parts[1] - 1, parts[2]); 
+        }
+        else if (item.type === 'solar_bday') {
+            // 公历生日：取今年的生日，如果过了就取明年
+            const bday = new Date(item.dateStr); // 只取月日
+            targetDate.setFullYear(today.getFullYear(), bday.getMonth(), bday.getDate());
+            if (targetDate < today) {
+                targetDate.setFullYear(today.getFullYear() + 1);
+            }
+            label = "生日";
+        } 
+        else if (item.type === 'lunar_bday') {
+            // 农历生日：使用 lunar-javascript 库
+            const lunarYear = Lunar.fromDate(today).getYear();
+            // 获取今年的农历生日对应的公历
+            let d = Lunar.fromYmd(lunarYear, parseInt(item.lunarM), parseInt(item.lunarD)).getSolar();
+            targetDate = new Date(d.getYear(), d.getMonth() - 1, d.getDay());
+            
+            // 如果今天已经过了这个农历对应的公历日期，算明年的
+            if (targetDate < today) {
+                let nextD = Lunar.fromYmd(lunarYear + 1, parseInt(item.lunarM), parseInt(item.lunarD)).getSolar();
+                targetDate = new Date(nextD.getYear(), nextD.getMonth() - 1, nextD.getDay());
+            }
+            label = "农历生日";
+        }
+
+        // 计算差值
+        const diffTime = targetDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        return { days: diffDays, target: targetDate, isExpired: (item.type === 'normal' && diffDays < 0) };
+    }
+
+    function refreshCountdowns() {
+        const wrapper = document.getElementById('countdown-wrapper');
+        if (!countdownData || countdownData.length === 0) {
+            wrapper.style.display = 'none';
+            return;
+        }
+
+        // 1. 计算所有事件的天数
+        let list = [];
+        let newData = []; // 用来过滤过期事件
+        
+        countdownData.forEach(item => {
+            const info = getDaysInfo(item);
+            if (!info.isExpired) {
+                list.push({ ...item, days: info.days, sortDate: info.target });
+                newData.push(item);
+            }
+        });
+
+        // 如果有普通事件过期被删除了，更新本地存储
+        if (newData.length !== countdownData.length) {
+            countdownData = newData;
+            localStorage.setItem('shadow_countdowns', JSON.stringify(countdownData));
+        }
+
+        if (list.length === 0) {
+            wrapper.style.display = 'none';
+            return;
+        }
+
+        // 2. 排序：天数小的在前
+        list.sort((a, b) => a.days - b.days);
+
+        // 3. 渲染
+        wrapper.style.display = 'block';
+        let html = '';
+        
+        // 渲染 Top 1 (最近的)
+        const top = list[0];
+        html += `
+            <div class="cd-top-item">
+                <span>${top.name} <span class="cd-top-label">${top.days === 0 ? '就是今天!' : '还有'}</span></span>
+                <span class="cd-top-days" style="color:${top.days<=3 ? '#ff4d4f':'var(--accent-color)'}">${top.days}天</span>
+            </div>
+        `;
+
+        // 渲染其余 (最多显示4个，防止太长，但数据存10个)
+        for(let i=1; i<list.length; i++) {
+            html += `
+                <div class="cd-normal-item">
+                    <span>${list[i].name}</span>
+                    <span class="cd-days-small">${list[i].days} 天</span>
+                </div>
+            `;
+        }
+        
+        wrapper.innerHTML = html;
+    }
+
+    // 打开弹窗（只有在编辑模式下点击时钟才触发）
+    function openCountdownModal() {
+        if (!isEditMode) return;
+        
+        // 渲染编辑列表
+        const listDiv = document.getElementById('cd-list-edit');
+        listDiv.innerHTML = '';
+        countdownData.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.style.padding = "5px";
+            div.style.borderBottom = "1px dashed #eee";
+            div.innerHTML = `
+                ${index+1}. ${item.name} <span style="font-size:10px;color:#999">(${item.type})</span>
+                <span class="del-tag" onclick="delCountdown(${index})">删除</span>
+            `;
+            listDiv.appendChild(div);
+        });
+
+        document.getElementById('countdownModal').style.display = 'flex';
+    }
+
+    // 切换输入框显示（农历不需要日期选择器，只需要月/日）
+    function toggleCdInput() {
+        const type = document.getElementById('cdType').value;
+        if (type === 'lunar_bday') {
+            document.getElementById('cdDateInput').style.display = 'none';
+            document.getElementById('lunarInputParams').style.display = 'flex';
+        } else {
+            document.getElementById('cdDateInput').style.display = 'block';
+            document.getElementById('lunarInputParams').style.display = 'none';
+        }
+    }
+
+    // 添加事件
+    function addCountdown() {
+        if (countdownData.length >= 10) {
+            alert("最多添加10个倒数日");
+            return;
+        }
+
+        const name = document.getElementById('cdName').value;
+        const type = document.getElementById('cdType').value;
+        let newItem = { name: name, type: type };
+
+        if (!name) { alert("请输入名称"); return; }
+
+        if (type === 'lunar_bday') {
+            const m = document.getElementById('lunarMonth').value;
+            const d = document.getElementById('lunarDay').value;
+            if (!m || !d) { alert("请输入农历月日"); return; }
+            newItem.lunarM = m;
+            newItem.lunarD = d;
+            newItem.dateStr = ""; // 农历不需要具体年份日期串
+        } else {
+            const dateVal = document.getElementById('cdDateInput').value;
+            if (!dateVal) { alert("请选择日期"); return; }
+            newItem.dateStr = dateVal;
+        }
+
+        countdownData.push(newItem);
+        localStorage.setItem('shadow_countdowns', JSON.stringify(countdownData));
+        
+        // 清空输入
+        document.getElementById('cdName').value = '';
+        
+        refreshCountdowns();
+        openCountdownModal(); // 刷新列表
+    }
+
+    function delCountdown(index) {
+        countdownData.splice(index, 1);
+        localStorage.setItem('shadow_countdowns', JSON.stringify(countdownData));
+        refreshCountdowns();
+        openCountdownModal(); // 刷新列表
+    }
+
+    // --- 新增：麦克风声纹律动逻辑 ---
+    let audioCtx, analyser, source, animationId, audioStream;
+    let isVisualizerOn = false; // 初始状态为关闭
+
+    function drawVisualizer() {
+        // 1. 申请下一帧动画
+        animationId = requestAnimationFrame(drawVisualizer);
+
+        // 2. 获取频率数据
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        analyser.getByteFrequencyData(dataArray);
+
+        // 3. 准备画布
+        const canvas = document.getElementById('visualizer');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 4. 获取当前页面的主题色 (确保声纹颜色随主题切换)
+        const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+        ctx.fillStyle = accentColor;
+
+        // 5. 计算绘制参数
+        const barWidth = 3;  // 单个电平条的宽度
+        const gap = 2;       // 条与条之间的间距
+        const centerX = canvas.width / 2; // 画布中心点
+        
+        // 6. 镜像绘制逻辑
+        // 为了美观，我们只展示低频到中频的部分（前 80 个数据点）
+        for (let i = 0; i < 80; i++) {
+            // 计算高度：dataArray[i] 范围是 0-255，缩放一下适配画布高度
+            // 乘以 0.6 是为了不让波形太高顶到上面
+            const barHeight = (dataArray[i] / 255) * canvas.height * 0.8;
+
+            if (barHeight > 0) {
+                // 绘制右侧电平
+                ctx.fillRect(centerX + i * (barWidth + gap), canvas.height - barHeight, barWidth, barHeight);
+                // 绘制左侧电平 (镜像)
+                ctx.fillRect(centerX - i * (barWidth + gap) - barWidth, canvas.height - barHeight, barWidth, barHeight);
+            }
+        }
+    }
+
+    document.getElementById('audioVisualBtn').addEventListener('click', async function() {
+        const btn = this;
+        const container = document.getElementById('visualizer-container');
+
+        if (!isVisualizerOn) {
+            // --- 开启模式 ---
+            try {
+                // 1. 请求麦克风权限
+                audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // 2. 初始化音频上下文
+                // 必须在用户交互后才创建 AudioContext，否则会被浏览器阻止
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } else if (audioCtx.state === 'suspended') {
+                    await audioCtx.resume();
+                }
+
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 512; // 设置采样精度，512 会产生 256 个数据点
+                
+                source = audioCtx.createMediaStreamSource(audioStream);
+                source.connect(analyser);
+
+                // 3. 改变UI状态
+                isVisualizerOn = true;
+                btn.classList.add('active'); // 按钮变色
+                container.style.display = 'flex'; // 显示画布容器
+
+                // 4. 开始绘图循环
+                drawVisualizer();
+
+            } catch (err) {
+                console.error("麦克风权限获取失败:", err);
+                alert("无法获取麦克风权限，请确保使用的是 HTTPS 或本地 localhost 环境，并在浏览器中允许权限。");
+            }
+        } else {
+            // --- 关闭模式 ---
+            isVisualizerOn = false;
+            btn.classList.remove('active');
+            container.style.display = 'none';
+
+            // 1. 停止动画
+            if (animationId) cancelAnimationFrame(animationId);
+
+            // 2. 停止麦克风占用 (消除浏览器标签页的小红点)
+            if (audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+            }
+
+            // 3. 断开音频连接
+            if (source) source.disconnect();
+            if (analyser) analyser.disconnect();
+        }
+    });
+
+    </script>
+
+    <input type="file" id="importInput" accept=".json" style="display: none;" onchange="importData(this)">
+
+</body>
+</html>
