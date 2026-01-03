@@ -1869,8 +1869,8 @@
             const canvasSmall = document.createElement('canvas');
             const ratio = video.videoHeight / video.videoWidth;
             
-            canvasSmall.width = 960; 
-            canvasSmall.height = 960 * ratio;
+            canvasSmall.width = 320; 
+            canvasSmall.height = 320 * ratio;
             
             const ctxSmall = canvasSmall.getContext('2d');
             ctxSmall.drawImage(video, 0, 0, canvasSmall.width, canvasSmall.height);
