@@ -498,19 +498,103 @@
         /* --- 摄像头悬浮窗样式 --- */
         .camera-floating-win {
             position: fixed;
-            bottom: 20px;       /* 默认出现在右下角 */
-            right: 20px;
-            width: 320px;       /* 默认宽度 */
-            background: rgba(255, 255, 255, 0.85); /* 半透明白 */
-            backdrop-filter: blur(12px); /* 磨砂玻璃效果 */
+            /* 核心：绝对居中 */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            
+            /* 大屏尺寸：80% */
+            width: 80%;
+            height: 80%;
+            
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             border: 1px solid var(--border-color);
-            z-index: 2000;      /* 保证在最顶层 */
+            z-index: 2000;
             overflow: hidden;
             transition: width 0.3s, height 0.3s, opacity 0.3s;
+            
+            /* 布局方式 */
             display: flex;
             flex-direction: column;
+        }
+
+        /* 顶部条：取消移动手势 */
+        .win-header {
+            height: 30px;
+            background: rgba(0, 0, 0, 0.05);
+            cursor: default; /* 改为默认鼠标，提示不可拖拽 */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            user-select: none;
+            flex-shrink: 0; /* 防止被压缩 */
+        }
+
+        /* --- 摄像头悬浮窗样式 (大屏自适应修正版) --- */
+        .camera-floating-win {
+            position: fixed;
+            /* 居中定位 */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            
+            /* 【核心修改】 */
+            width: 80%;             /* 宽度占据屏幕 80% */
+            max-width: 1200px;      /* 限制最大宽度，防止在超宽屏上太大 */
+            
+            /* 关键：锁定 16:9 比例，让高度自动适应宽度 */
+            aspect-ratio: 16 / 9;   
+            height: auto;           /* 高度由宽度和比例决定 */
+            
+            /* 关键：限制最大高度，防止把屏幕撑爆 */
+            max-height: 85vh;       
+            
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            z-index: 2000;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部条 */
+        .win-header {
+            height: 30px;
+            background: rgba(0, 0, 0, 0.05);
+            cursor: default;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        /* 视频区域 */
+        #camera-feed {
+            width: 100%;
+            height: 100%;       /* 填满容器 */
+            object-fit: cover;  /* 保持比例裁剪 */
+            background: #000;
+            flex-grow: 1;       /* 自动占据剩余空间 */
+        }
+
+        /* 最小化状态：依然居中，但变小 */
+        .camera-floating-win.minimized {
+            width: 200px;
+            height: auto;
+            /* 最小化时取消高度限制，让内容撑开 */
+        }
+        .camera-floating-win.minimized #camera-feed {
+            height: 120px;
+            flex: none; /* 最小化时取消自动填充 */
         }
 
         /* 夜间模式适配 */
@@ -519,17 +603,6 @@
             border-color: rgba(255, 255, 255, 0.1);
         }
 
-        /* 顶部拖拽条 */
-        .win-header {
-            height: 30px;
-            background: rgba(0, 0, 0, 0.05);
-            cursor: move; /* 鼠标变成移动图标 */
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 10px;
-            user-select: none;
-        }
 
         .win-title {
             font-size: 12px;
@@ -562,14 +635,6 @@
         .close-btn { background: #ff5f56; } /* 红色关闭 */
         .min-btn { background: #ffbd2e; }   /* 黄色最小化 */
 
-        /* 视频区域 */
-        #camera-feed {
-            width: 100%;
-            height: 240px; /* 固定高度，保持比例 */
-            object-fit: cover;
-            background: #000;
-        }
-
         /* --- 最小化状态 --- */
         .camera-floating-win.minimized {
             width: 160px;  /* 变小 */
@@ -577,6 +642,56 @@
         }
         .camera-floating-win.minimized #camera-feed {
             height: 90px; /* 视频高度变小 */
+        }
+
+        .camera-controls {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            pointer-events: none; /* 让点击穿透，除了按钮本身 */
+        }
+
+        /* 录制按钮 */
+        .record-btn {
+            width: 40px;
+            height: 40px;
+            background-color: #ff4d4f;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            cursor: pointer;
+            pointer-events: auto; /* 恢复按钮点击 */
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .record-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* 录制状态下的按钮（变成方形） */
+        .record-btn.recording {
+            border-radius: 6px; /* 变成圆角矩形 */
+            background-color: #ff4d4f;
+            transform: scale(0.6); /* 缩小一点 */
+            border-color: white;
+        }
+
+        /* 计时器 */
+        .record-timer {
+            position: absolute;
+            bottom: 50px; /* 位于按钮上方 */
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: none; /* 默认隐藏 */
+            font-family: monospace;
         }
 
     </style>
@@ -712,6 +827,11 @@
             <span class="win-title">Camera</span>
         </div>
         <video id="camera-feed" autoplay playsinline muted></video>
+
+        <div class="camera-controls">
+            <div id="record-timer" class="record-timer">00:00</div>
+            <button id="recordBtn" class="record-btn" title="开始录制"></button>
+        </div>
     </div>
 
     <script>
@@ -1517,48 +1637,162 @@
         }
     });
 
-    // --- 摄像头悬浮窗逻辑 ---
+    // --- 摄像头悬浮窗逻辑 (含录制功能) ---
     let cameraStream = null;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let recordTimerInterval = null;
+    let isRecording = false;
+
     const cameraWin = document.getElementById('camera-window');
     const cameraHeader = document.getElementById('camera-header');
-    
-    // 1. 开启/关闭 摄像头
+    const recordBtn = document.getElementById('recordBtn');
+    const timerDisplay = document.getElementById('record-timer');
+
+    // 1. 开启/关闭 摄像头 (修改了权限请求)
     document.getElementById('cameraBtn').addEventListener('click', async function() {
         const videoEl = document.getElementById('camera-feed');
         
-        // 如果已经打开，就关闭
         if (cameraStream) {
             closeCamera();
             return;
         }
 
         try {
-            // 请求摄像头权限
-            cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                video: true, 
+                audio: true 
+            });
+            
             videoEl.srcObject = cameraStream;
+            videoEl.muted = true; 
             videoEl.play();
             
-            // 显示窗口
+            // --- 修改点：直接显示，无需计算坐标 ---
+            // CSS 的 top:50%/left:50% 会自动接管位置
             cameraWin.style.display = 'flex';
-            // 默认位置重置（可选）
-            cameraWin.style.top = '100px';
-            cameraWin.style.right = '100px';
-            cameraWin.style.left = 'auto';
-            cameraWin.style.bottom = 'auto';
             
-            this.classList.add('active'); // 顶部按钮变色
+            // 确保没有残留的行内样式干扰 CSS 类定义
+            cameraWin.style.left = '';
+            cameraWin.style.top = '';
+            cameraWin.style.right = '';
+            cameraWin.style.bottom = '';
+            
+            this.classList.add('active');
         } catch (err) {
-            alert("无法访问摄像头: " + err.message);
+            console.error(err);
+            alert("无法访问摄像头或麦克风: " + err.message);
         }
     });
 
-    // 2. 关闭功能的具体实现
+    // 2. 录制按钮点击事件
+    recordBtn.addEventListener('click', function() {
+        if (!isRecording) {
+            startRecording();
+        } else {
+            stopRecording();
+        }
+    });
+
+    // 开始录制
+    function startRecording() {
+        if (!cameraStream) return;
+        
+        recordedChunks = [];
+        // 优先使用 mp4 格式，如果不支持则回退到 webm
+        let options = { mimeType: 'video/webm;codecs=vp9' };
+        if (MediaRecorder.isTypeSupported('video/mp4')) {
+            options = { mimeType: 'video/mp4' };
+        }
+
+        try {
+            mediaRecorder = new MediaRecorder(cameraStream, options);
+        } catch (e) {
+            console.warn("当前设置不支持，尝试默认设置");
+            mediaRecorder = new MediaRecorder(cameraStream);
+        }
+
+        mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+                recordedChunks.push(event.data);
+            }
+        };
+
+        mediaRecorder.onstop = exportVideo;
+
+        mediaRecorder.start();
+        isRecording = true;
+        
+        // UI 变化
+        recordBtn.classList.add('recording');
+        timerDisplay.style.display = 'block';
+        startTimer();
+    }
+
+    // 停止录制
+    function stopRecording() {
+        if (mediaRecorder) {
+            mediaRecorder.stop();
+        }
+        isRecording = false;
+        
+        // UI 恢复
+        recordBtn.classList.remove('recording');
+        timerDisplay.style.display = 'none';
+        stopTimer();
+    }
+
+    // 导出视频文件
+    function exportVideo() {
+        const blob = new Blob(recordedChunks, {
+            type: mediaRecorder.mimeType || 'video/webm'
+        });
+        
+        // 生成文件名：Camera_月-日_时-分.mp4
+        const now = new Date();
+        const fileName = `Camera_${now.getMonth()+1}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}.mp4`;
+        
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        
+        setTimeout(() => {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 100);
+    }
+
+    // 简单的计时器逻辑
+    function startTimer() {
+        let seconds = 0;
+        timerDisplay.innerText = "00:00";
+        recordTimerInterval = setInterval(() => {
+            seconds++;
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            timerDisplay.innerText = `${m}:${s}`;
+        }, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(recordTimerInterval);
+        timerDisplay.innerText = "00:00";
+    }
+
+    // 3. 关闭功能
     function closeCamera() {
         const videoEl = document.getElementById('camera-feed');
         const btn = document.getElementById('cameraBtn');
+        
+        if (isRecording) {
+            stopRecording(); // 如果正在录制，先停止并保存
+        }
 
         if (cameraStream) {
-            // 停止所有视频轨道 (这会让摄像头指示灯熄灭)
             cameraStream.getTracks().forEach(track => track.stop());
             cameraStream = null;
         }
@@ -1568,50 +1802,10 @@
         btn.classList.remove('active');
     }
 
-    // 3. 最小化/还原 功能
+    // 4. 最小化/还原
     function toggleCameraMin() {
         cameraWin.classList.toggle('minimized');
     }
-
-    // 4. 拖拽逻辑 (专门针对摄像头窗口)
-    let isCamDragging = false;
-    let camOffsetX, camOffsetY;
-
-    // 鼠标按下标题栏
-    cameraHeader.addEventListener('mousedown', function(e) {
-        isCamDragging = true;
-        // 计算鼠标相对于窗口左上角的偏移
-        camOffsetX = e.clientX - cameraWin.offsetLeft;
-        camOffsetY = e.clientY - cameraWin.offsetTop;
-        cameraWin.style.transition = 'none'; // 拖动时临时关闭过渡动画，防止卡顿
-    });
-
-    // 鼠标移动
-    window.addEventListener('mousemove', function(e) {
-        if (isCamDragging) {
-            e.preventDefault();
-            let newLeft = e.clientX - camOffsetX;
-            let newTop = e.clientY - camOffsetY;
-            
-            // 简单的边界检查 (防止拖出屏幕太远)
-            // if (newLeft < 0) newLeft = 0;
-            // if (newTop < 0) newTop = 0;
-            
-            cameraWin.style.left = newLeft + 'px';
-            cameraWin.style.top = newTop + 'px';
-            // 清除 right/bottom 属性，防止定位冲突
-            cameraWin.style.right = 'auto';
-            cameraWin.style.bottom = 'auto';
-        }
-    });
-
-    // 鼠标松开
-    window.addEventListener('mouseup', function() {
-        if (isCamDragging) {
-            isCamDragging = false;
-            cameraWin.style.transition = 'width 0.3s, opacity 0.3s'; // 恢复动画
-        }
-    });
 
     </script>
 
