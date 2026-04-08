@@ -1,0 +1,871 @@
+/* 让视频变成背景壁纸的关键代码 */
+#bg-video {
+    position: fixed;       /* 固定在窗口，不随鼠标滚动 */
+    top: 0;
+    left: 0;
+    width: 100%;           /* 撑满宽度 */
+    height: 100%;          /* 撑满高度 */
+    object-fit: cover;     /* 保持比例填满，不留黑边 */
+    z-index: -1;           /* 放在最底层，不挡住按钮 */
+}
+
+:root {
+    --bg-color: #f0f2f5;
+    --header-bg: #ffffff;
+    --text-color: #555555;
+    --title-color: #333;
+    --card-bg: #ffffff; /* 分类卡片的背景不是每个按钮的背景，截图风格是整体白色 */
+    --btn-bg: #ffffff;
+    --btn-hover: #f0f0f0;
+    --border-color: #eaeaea;
+    --accent-color: #3c78d8;
+    --shadow: 0 1px 3px rgba(0,0,0,0.05);
+    --modal-bg: #fff;
+    --input-bg: #fff;
+}
+
+body.dark-mode {
+    --bg-color: #121212;
+    --header-bg: #1e1e1e;
+    --text-color: #bbbbbb;
+    --title-color: #e0e0e0;
+    --card-bg: #1e1e1e; /* 夜间模式下分类不明显，主要是整体变暗 */
+    --btn-bg: #2d2d2d;
+    --btn-hover: #383838;
+    --border-color: #333;
+    --shadow: 0 1px 3px rgba(0,0,0,0.4);
+    --modal-bg: #2d2d2d;
+    --input-bg: #333;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* 顶部导航栏 */
+header {
+    background-color: var(--header-bg);
+    box-shadow: var(--shadow);
+    padding: 0 40px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--title-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 中间花体字样式 */
+/* 修改后的花体字样式 */
+.romantic-text {
+    font-family: 'Ma Shan Zheng', "STXingkai", "KaiTi", cursive;
+    font-size: 26px;       /* 稍微加大一点 */
+    font-weight: 900;      /* 关键：加粗，让颜色更明显 */
+    
+    /* 保持原来的渐变色 */
+    background: linear-gradient(120deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb, #8fd3f4);
+    background-size: 300% 300%;
+    
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    
+    animation: colorFlow 8s ease-in-out infinite;
+    letter-spacing: 2px;
+    text-align: center;
+    
+    /* 关键修复：添加投影滤镜 */
+    /* 这会让文字背后出现黑色阴影，即使在白色背景上也看得清 */
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+    
+    /* 鼠标放上去时，阴影加重 */
+    transition: filter 0.3s;
+}
+
+.romantic-text:hover {
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.8));
+}
+
+/* 颜色流动动画定义 */
+@keyframes colorFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+:root {
+    /* 背景色设为透明，让视频露出来 */
+    --bg-color: transparent; 
+    
+    /* 头部和卡片改为半透明白色 (最后的 0.7 是透明度，越小越透) */
+    --header-bg: rgba(255, 255, 255, 0.7);
+    --card-bg: rgba(255, 255, 255, 0.6); 
+    --btn-bg: rgba(255, 255, 255, 0.6);
+    --btn-hover: rgba(255, 255, 255, 0.8);
+    
+    /* 输入框稍微不透一点，保证看不花眼 */
+    --input-bg: rgba(255, 255, 255, 0.8);
+    --modal-bg: rgba(255, 255, 255, 0.95);
+
+    /* 其他保持不变 */
+    --text-color: #333333; /* 文字稍微加深一点，防止背景太花看不清 */
+    --title-color: #000;
+    --border-color: rgba(255, 255, 255, 0.3);
+    --accent-color: #3c78d8;
+    --shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+body.dark-mode {
+    --bg-color: transparent;
+    
+    /* 夜间模式改为半透明黑色 */
+    --header-bg: rgba(30, 30, 30, 0.7);
+    --text-color: #e0e0e0;
+    --title-color: #ffffff;
+    --card-bg: rgba(30, 30, 30, 0.6);
+    --btn-bg: rgba(45, 45, 45, 0.6);
+    --btn-hover: rgba(60, 60, 60, 0.8);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --shadow: 0 4px 6px rgba(0,0,0,0.4);
+    --modal-bg: rgba(45, 45, 45, 0.95);
+    --input-bg: rgba(45, 45, 45, 0.8);
+}
+
+/* 手机屏幕太窄时隐藏这句话，防止挤乱布局 */
+@media (max-width: 768px) {
+    .romantic-text {
+        display: none;
+    }
+}
+
+/* 新增头像样式 */
+.user-avatar {
+    width: 36px;            /* 头像宽度 */
+    height: 36px;           /* 头像高度 */
+    border-radius: 50%;     /* 设置为圆形 */
+    object-fit: cover;      /* 防止图片变形 */
+    border: 2px solid var(--border-color); /* 可选：加个细边框让头像更精致 */
+}
+
+/* 模仿截图中的彩色花瓣Logo */
+.logo-icon {
+    color: #e65100; /* 简化的颜色 */
+    font-size: 20px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: 0.2s;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn:hover { background-color: rgba(0,0,0,0.05); color: var(--accent-color); }
+.icon-btn.active { color: var(--accent-color); background-color: rgba(60, 120, 216, 0.1); }
+
+/* 搜索区域 */
+.search-section {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0;
+    padding: 0 20px;
+}
+
+.search-box {
+    display: flex;
+    background: var(--input-bg);
+    width: 100%;
+    max-width: 600px;
+    height: 44px;
+    align-items: center;
+    border: 1px solid var(--border-color); /* 截图风格：方形带边框，不是圆角 */
+    box-shadow: var(--shadow);
+    position: relative;
+}
+
+/* 搜索历史样式 */
+.search-history {
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    background: var(--modal-bg);
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.history-item:hover {
+    background-color: rgba(60, 120, 216, 0.05);
+}
+
+.history-item i {
+    margin-right: 10px;
+    color: #999;
+    font-size: 14px;
+}
+
+.history-item span {
+    flex: 1;
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+.history-remove {
+    color: #999;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+    font-size: 12px;
+}
+
+.history-remove:hover {
+    background-color: rgba(0,0,0,0.05);
+    color: #666;
+}
+
+/* 夜间模式适配 */
+body.dark-mode .search-history {
+    background: var(--modal-bg);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .history-item:hover {
+    background-color: rgba(255,255,255,0.05);
+}
+
+body.dark-mode .history-item span {
+    color: var(--text-color);
+}
+
+.search-icon {
+    padding-left: 15px;
+    color: #3c78d8; /* 必应/百度的蓝色 */
+    font-size: 18px;
+}
+
+.search-box input {
+    border: none;
+    background: transparent;
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    color: var(--text-color);
+    outline: none;
+}
+
+.search-btn {
+    background: transparent;
+    color: #3c78d8;
+    border: none;
+    padding: 0 20px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    border-left: 1px solid var(--border-color);
+    height: 100%;
+}
+
+.search-btn:hover { background-color: rgba(60, 120, 216, 0.05); }
+
+/* 内容容器 */
+.container {
+    max-width: 1400px; /* 宽屏适配 */
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 整体网格：模仿截图中的3列瀑布流布局 */
+.main-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+/* 分类块 */
+.category-group {
+    margin-bottom: 20px;
+    break-inside: avoid; /* 防止瀑布流截断 */
+}
+
+.category-title {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 10px;
+    padding-left: 5px;
+}
+
+/* 单个分类里的链接网格：3列 */
+.links-wrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+/* 链接按钮样式 */
+.link-card {
+    background-color: var(--btn-bg);
+    text-align: center;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 12px;
+    height: 40px; /* 扁平高度 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    cursor: pointer;
+    border-radius: 2px; /* 微圆角 */
+}
+
+.link-card:hover {
+    background-color: var(--btn-hover);
+    color: var(--accent-color);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* 编辑模式样式 */
+body.edit-mode .link-card {
+    border: 1px dashed var(--accent-color);
+    position: relative;
+}
+
+body.edit-mode .link-card:hover::after {
+    content: "\f040"; /* 笔图标 */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 8px;
+    color: var(--accent-color);
+}
+
+/* 模态框 */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: var(--modal-bg);
+    padding: 25px;
+    border-radius: 4px;
+    width: 320px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+.modal h3 { margin-bottom: 20px; color: var(--title-color); font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;}
+
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-size: 12px; color: #888; }
+.form-group input { 
+    width: 100%; padding: 8px; 
+    border: 1px solid var(--border-color); 
+    background: var(--input-bg);
+    color: var(--text-color);
+    border-radius: 2px;
+    outline: none;
+}
+.form-group input:focus { border-color: var(--accent-color); }
+
+.modal-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.btn { padding: 6px 15px; border-radius: 2px; border: none; cursor: pointer; font-size: 12px; }
+.btn-cancel { background: #eee; color: #333; }
+.btn-save { background: var(--accent-color); color: #fff; }
+
+/* 响应式适配 */
+@media (max-width: 992px) {
+    .main-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+    .main-grid { grid-template-columns: 1fr; }
+    header { padding: 0 15px; }
+    .header-actions { gap: 10px; }
+}
+
+/* --- 新增：左侧悬浮时钟样式 --- */
+/* --- 修改后的：左侧悬浮时钟样式 --- */
+.clock-container {
+    position: fixed;
+    /* 默认位置 */
+    left: 30px;
+    top: 100px;
+    
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9); /*稍微不透明一点 */
+    backdrop-filter: blur(8px);
+    padding: 20px 15px; /* 增加内边距 */
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    border: 1px solid var(--border-color);
+    font-family: 'Segoe UI', sans-serif;
+    z-index: 1000; /* 保证最上层 */
+    width: 220px; /* 宽度变大 */
+    user-select: none; /* 防止拖动时选中文字 */
+}
+
+/* 字体变大 */
+.clock-container .time {
+    font-size: 38px; /* 原来是22px */
+    font-weight: bold;
+    color: var(--accent-color);
+    margin-bottom: 5px;
+    line-height: 1; /* 紧凑一点 */
+}
+
+.clock-container .date {
+    font-size: 14px;
+    color: #666;
+    margin-top: 8px;
+}
+
+/* 编辑模式下：变成可移动状态 */
+body.edit-mode .clock-container {
+    cursor: move; /* 鼠标变成十字箭头 */
+    border: 2px dashed var(--accent-color); /* 虚线框提示 */
+    background: rgba(255, 255, 255, 1); /* 编辑时全白背景 */
+    transform: scale(1.05); /* 微微放大提示可操作 */
+    transition: transform 0.2s, border 0.2s;
+}
+
+/* 夜间模式适配 */
+body.dark-mode .clock-container {
+    background: rgba(30, 30, 30, 0.8);
+    color: var(--text-color);
+}
+
+
+.clock-container .date {
+    font-size: 12px;
+    color: #888;
+}
+
+/* 屏幕太窄时隐藏时钟 */
+@media (max-width: 1200px) {
+    .clock-container { display: none; }
+}
+
+/* --- 编辑模式下的文字交互 --- */
+/* 当 body 有 edit-mode 时，顶部的文字变成可点击状态 */
+body.edit-mode .romantic-text {
+    cursor: pointer;
+    border: 1px dashed var(--accent-color); /* 加个虚线框提示可编辑 */
+    border-radius: 4px;
+    padding: 2px 10px;
+}
+body.edit-mode .romantic-text:hover {
+    background: rgba(60, 120, 216, 0.1);
+}
+
+/* 倒数日列表样式 */
+.countdown-list {
+    margin-top: 15px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    padding-top: 10px;
+    text-align: left;
+    font-size: 13px;
+    display: none; /* 没数据时隐藏 */
+}
+/* 置顶的最近一个事件 */
+.cd-top-item {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--accent-color);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+.cd-top-days { font-size: 24px; margin-left: 5px; }
+.cd-top-label { font-size: 12px; font-weight: normal; color: #888; }
+
+/* 其他列表项 */
+.cd-normal-item {
+    display: flex;
+    justify-content: space-between;
+    color: #555;
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+.cd-days-small { font-weight: bold; color: var(--accent-color); }
+
+/* 编辑列表中的删除按钮样式 */
+.del-tag { color: red; cursor: pointer; float: right; font-size: 12px; }
+
+/* 只有在编辑模式下，鼠标放上去才显示手型 */
+body.edit-mode .clock-container { cursor: pointer; }
+body.edit-mode .clock-container:hover { background: rgba(255,255,255,1); border-color: var(--accent-color); }
+
+/* 麦克风激活时的状态 */
+.icon-btn#audioVisualBtn.active {
+    color: #ff4d4f; /* 激活时变成红色或主题色 */
+    background-color: rgba(255, 77, 79, 0.1);
+}
+
+/* --- 摄像头悬浮窗样式 --- */
+.camera-floating-win {
+    position: fixed;
+    /* 核心：绝对居中 */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    /* 大屏尺寸：80% */
+    width: 80%;
+    height: 80%;
+    
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    z-index: 2000;
+    overflow: hidden;
+    transition: width 0.3s, height 0.3s, opacity 0.3s;
+    
+    /* 布局方式 */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 顶部条：取消移动手势 */
+.win-header {
+    height: 30px;
+    background: rgba(0, 0, 0, 0.05);
+    cursor: default; /* 改为默认鼠标，提示不可拖拽 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    user-select: none;
+    flex-shrink: 0; /* 防止被压缩 */
+}
+
+/* --- 摄像头悬浮窗样式 (大屏自适应修正版) --- */
+.camera-floating-win {
+    position: fixed;
+    /* 居中定位 */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    /* 【核心修改】 */
+    width: 80%;             /* 宽度占据屏幕 80% */
+    max-width: 1200px;      /* 限制最大宽度，防止在超宽屏上太大 */
+    
+    /* 关键：锁定 16:9 比例，让高度自动适应宽度 */
+    aspect-ratio: 16 / 9;   
+    height: auto;           /* 高度由宽度和比例决定 */
+    
+    /* 关键：限制最大高度，防止把屏幕撑爆 */
+    max-height: 85vh;       
+    
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    z-index: 2000;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 顶部条 */
+.win-header {
+    height: 30px;
+    background: rgba(0, 0, 0, 0.05);
+    cursor: default;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+/* 视频区域 */
+#camera-feed {
+    width: 100%;
+    height: 100%;       /* 填满容器 */
+    object-fit: cover;  /* 保持比例裁剪 */
+    background: #000;
+    flex-grow: 1;       /* 自动占据剩余空间 */
+}
+
+/* 最小化状态：依然居中，但变小 */
+.camera-floating-win.minimized {
+    width: 200px;
+    height: auto;
+    /* 最小化时取消高度限制，让内容撑开 */
+}
+.camera-floating-win.minimized #camera-feed {
+    height: 120px;
+    flex: none; /* 最小化时取消自动填充 */
+}
+
+/* 夜间模式适配 */
+body.dark-mode .camera-floating-win {
+    background: rgba(30, 30, 30, 0.85);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+
+.win-title {
+    font-size: 12px;
+    color: #888;
+    margin-left: auto; /* 把标题挤到右边，或者去掉这行居中 */
+}
+
+/* 控制按钮 */
+.win-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.win-btn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    line-height: 12px;
+    font-size: 10px;
+    color: transparent; /* 默认不显示符号 */
+    overflow: hidden;
+}
+
+.win-btn:hover { color: rgba(0,0,0,0.6); }
+
+/* 红绿灯配色风格 */
+.close-btn { background: #ff5f56; } /* 红色关闭 */
+.min-btn { background: #ffbd2e; }   /* 黄色最小化 */
+
+/* --- 最小化状态 --- */
+.camera-floating-win.minimized {
+    width: 160px;  /* 变小 */
+    height: auto;
+}
+.camera-floating-win.minimized #camera-feed {
+    height: 90px; /* 视频高度变小 */
+}
+
+.camera-controls {
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    pointer-events: none; /* 让点击穿透，除了按钮本身 */
+}
+
+/* 录制按钮 */
+.record-btn {
+    width: 40px;
+    height: 40px;
+    background-color: #ff4d4f;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto; /* 恢复按钮点击 */
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.record-btn:hover {
+    transform: scale(1.1);
+}
+
+/* 录制状态下的按钮（变成方形） */
+.record-btn.recording {
+    border-radius: 6px; /* 变成圆角矩形 */
+    background-color: #ff4d4f;
+    transform: scale(0.6); /* 缩小一点 */
+    border-color: white;
+}
+
+/* 计时器 */
+.record-timer {
+    position: absolute;
+    bottom: 50px; /* 位于按钮上方 */
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    display: none; /* 默认隐藏 */
+    font-family: monospace;
+}
+
+/* 新增：声纹上方的歌词样式 */
+.audio-text {
+    /* 继承 romantic-text 的字体和动画，但覆盖颜色 */
+    font-size: 18px;           /* 比主标题小一点 */
+    margin-bottom: 40px;       /* 和波形图留点距离 */
+    line-height: 1.8;          /* 多行文字行高 */
+    cursor: pointer;
+    transition: opacity 0.3s ease-in-out; /* 变淡的动画更丝滑 */
+    
+    /*以此覆盖原来的粉色渐变，改为“暗淡”的蓝紫色系 */
+    /* 保持你想要的暗淡色系 */
+    background: linear-gradient(120deg, #a1c4fd, #c2e9fb, #d4fc79, #96e6a1); 
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+    text-align: center;
+}
+
+/* 编辑模式下的提示框颜色也改一下 */
+body.edit-mode .audio-text {
+    border: 1px dashed #a1c4fd;
+    padding: 5px 10px;
+}
+
+/* 新闻卡片样式 */
+.floating-card {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    width: 350px;
+    max-height: 400px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.card-header {
+    background: #f0f0f0;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.card-title {
+    font-weight: bold;
+    color: #333;
+}
+
+.card-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.card-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.close-btn {
+    background: #ff4d4f;
+    color: white;
+}
+
+.refresh-btn {
+    background: #1890ff;
+    color: white;
+}
+
+.card-content {
+    padding: 15px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.card-content p {
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+}
+
+.card-content a {
+    color: #1890ff;
+    text-decoration: none;
+}
+
+.card-content a:hover {
+    text-decoration: underline;
+}
+
+/* 夜间模式适配 */
+body.dark-mode .floating-card {
+    background: rgba(30, 30, 30, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .card-header {
+    background: rgba(45, 45, 45, 0.8);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .card-title {
+    color: #e0e0e0;
+}
+
+body.dark-mode .card-content {
+    color: #e0e0e0;
+}
+
+body.dark-mode .card-content a {
+    color: #69c0ff;
+}

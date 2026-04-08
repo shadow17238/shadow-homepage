@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow's Homepage</title>
+    <link rel="icon" href="images/avatar_1.png" type="image/jpeg">
+    <link rel="shortcut icon" href="images/avatar_1.png" type="image/jpeg">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.2.37/lunar.min.js"></script>
+    <script src="data/data.js"></script>
+</head>
+<body>
+
+    <video autoplay loop muted playsinline id="bg-video">
+        <source src="wallpaper/1.mp4" type="video/mp4">
+    </video>
+    
+    <!-- 互动背景Canvas -->
+    <canvas id="interactive-bg" style="position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none;"></canvas>
+
+    <div id="clock-box" class="clock-container" onclick="openCountdownModal()">
+        <div class="time" id="clockTime">00:00:00</div>
+        <div class="date" id="clockDate">YYYY-MM-DD</div>
+        
+        <div id="countdown-wrapper" class="countdown-list">
+            </div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <img src="images/avatar.jpg" class="user-avatar" alt="头像">
+            <span>shadow's homepage</span>
+        </div>
+
+        <div class="romantic-text" id="artText" onclick="editTitle()">爱意随风起，风止意难平</div>
+
+        <div class="header-actions">
+            <button class="icon-btn" id="themeBtn" title="切换夜间模式">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+            <button class="icon-btn" id="audioVisualBtn" title="开启环境音律动">
+                <i class="fa-solid fa-microphone"></i>
+            </button>
+            <button class="icon-btn" id="cameraBtn" title="开启摄像头悬浮窗">
+                <i class="fa-solid fa-video"></i>
+            </button>
+            
+            <button class="icon-btn" onclick="triggerImport()" title="导入配置">
+                <i class="fa-solid fa-file-import"></i>
+            </button>
+
+            <button class="icon-btn" id="editBtn" title="自定义/编辑链接">
+                <i class="fa-solid fa-cog"></i>
+            </button>
+
+            <a href="https://zjuers.com" target="_blank" class="icon-btn" title="zjuers.com">
+                <i class="fa-solid fa-umbrella"></i> </a>
+            
+            <button class="icon-btn" onclick="exportData()" title="导出配置">
+                <i class="fa-solid fa-file-export"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="search-section">
+        <div class="search-box">
+            <i class="fa-brands fa-windows search-icon"></i> <input type="text" id="searchInput" placeholder=" 请输入搜索内容~" onkeypress="handleSearch(event)" onfocus="showSearchHistory()">
+            <button class="search-btn" onclick="doSearch()">GO</button>
+            <!-- 搜索历史容器 -->
+            <div id="searchHistoryContainer" class="search-history" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); z-index: 1000; max-height: 300px; overflow-y: auto;">
+                <div class="history-header" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border-bottom: 1px solid var(--border-color);">
+                    <span style="font-size: 14px; font-weight: bold; color: var(--text-color);">搜索历史</span>
+                    <button class="clear-history" onclick="clearSearchHistory()" style="background: none; border: none; color: #999; cursor: pointer; font-size: 12px;">清空</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="height: calc(100vh - 100px); overflow-y: auto;">
+        <div class="main-grid" id="linkContainer">
+            </div>
+        <div id="visualizer-container" style="display: flex; position: relative; flex-direction: column; align-items: center; margin-top: 30px;">
+    
+            <div class="audio-text romantic-text" id="audioText" onclick="editSubtitle()">
+                纵容的 喜欢的 讨厌的 宠溺的 厌倦的<br>一个个慢慢暗淡
+            </div>
+            
+            <canvas id="visualizer" width="800" height="150" style="max-width: 100%;"></canvas>
+        </div>
+        
+        <!-- 统计信息区域 -->
+        <div class="stats-container" style="display: flex; justify-content: center; margin-top: 30px; padding: 15px; background: rgba(255, 255, 255, 0.9); border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); margin-bottom: 30px;">
+            <div class="stat-item" style="margin: 0 20px; text-align: center;">
+                <div class="stat-label" style="font-size: 14px; color: #333; margin-bottom: 5px;">点击次数</div>
+                <div class="stat-value" id="clickCount" style="font-size: 24px; font-weight: bold; color: #1890ff;">0</div>
+            </div>
+            <div class="stat-item" style="margin: 0 20px; text-align: center;">
+                <div class="stat-label" style="font-size: 14px; color: #333; margin-bottom: 5px;">累计在线时间</div>
+                <div class="stat-value" id="onlineTime" style="font-size: 24px; font-weight: bold; color: #1890ff;">00:00:00</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <h3 id="modalTitle">编辑内容</h3>
+            
+            <div class="form-group" id="groupName">
+                <label id="labelName">显示名称</label>
+                <input type="text" id="editName">
+            </div>
+
+            <div class="form-group" id="groupUrl">
+                <label>网址 URL</label>
+                <input type="text" id="editUrl">
+            </div>
+
+            <div class="modal-btns">
+                <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+                <button class="btn btn-save" onclick="saveData()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="countdownModal">
+        <div class="modal" style="width: 350px;">
+            <h3>管理倒数日 </h3>
+            
+            <div id="cd-list-edit" style="max-height: 150px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #eee; padding: 5px;"></div>
+
+            <div style="border-top: 1px solid #eee; padding-top: 10px;">
+                <div class="form-group">
+                    <label>事件名称</label>
+                    <input type="text" id="cdName" placeholder="例如：老婆生日、考研">
+                </div>
+                <div class="form-group">
+                    <label>日期设置</label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                        <select id="cdType" onchange="toggleCdInput()" style="padding: 5px;">
+                            <option value="normal">普通日期 (过期删除)</option>
+                            <option value="solar_bday">公历生日 (自动续期)</option>
+                            <option value="lunar_bday">农历生日 (自动续期)</option>
+                        </select>
+                    </div>
+                    <input type="date" id="cdDateInput">
+                    <div id="lunarInputParams" style="display:none; gap:5px; margin-top:5px;">
+                        <input type="number" id="lunarMonth" placeholder="月(1-12)" style="width: 60px;">
+                        <input type="number" id="lunarDay" placeholder="日(1-30)" style="width: 60px;">
+                        <span style="font-size:12px; color:#888; line-height: 30px;">(无需年份)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-btns">
+                <button class="btn btn-cancel" onclick="document.getElementById('countdownModal').style.display='none'">关闭</button>
+                <button class="btn btn-save" onclick="addCountdown()">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="camera-window" class="camera-floating-win" style="display: none;">
+        <div class="win-header" id="camera-header">
+            <div class="win-controls">
+                <span class="win-btn close-btn" onclick="closeCamera()" title="关闭">×</span>
+                <span class="win-btn min-btn" onclick="toggleCameraMin()" title="最小化/还原">−</span>
+            </div>
+            <span class="win-title">Camera</span>
+        </div>
+        <video id="camera-feed" autoplay playsinline muted></video>
+
+        <div class="camera-controls">
+            <div id="record-timer" class="record-timer">00:00</div>
+            <button id="recordBtn" class="record-btn" title="开始录制"></button>
+        </div>
+    </div>
+
+    <input type="file" id="importInput" accept=".json" style="display: none;" onchange="importData(this)">
+    <script src="js/script.js"></script>
+</body>
+</html>
