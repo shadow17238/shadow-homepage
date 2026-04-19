@@ -1,4 +1,4 @@
-// 网站链接数据
+﻿// 网站链接数据
 const defaultData = [
     {
         "category": "studying",

@@ -1,160 +1,149 @@
 # Shadow's Homepage
 
-这是一个个性化的个人主页网站，具有美观的界面和丰富的功能，为用户提供便捷的链接管理和实用工具。
+一个无需构建工具的静态个人导航页。  
+双击 [index.html](F:\shadow's homepage\index.html) 就能打开，也可以配合本地静态服务器获得更完整的媒体权限体验。
 
-## 项目结构
+## 项目特点
 
+- 分类导航：按分组展示常用链接，支持编辑模式下修改名称和地址。
+- 搜索体验：内置 Bing 搜索，支持搜索历史、关键词匹配和拼音匹配。
+- 数据统计：支持 `今日 / 本周 / 本月` 视图，查看点击趋势、在线时长和热门网页。
+- 倒数日：支持普通日期、公历生日、农历生日，支持新增、编辑、删除和置顶。
+- 个性化：支持深浅色主题、首页寄语、律动文案、时钟位置等本地配置。
+- 媒体功能：支持麦克风可视化、摄像头悬浮窗和录屏导出。
+- 数据备份：支持导出 / 导入 JSON，恢复链接、倒数日、统计和页面配置。
+- 视觉效果：支持视频壁纸、粒子背景、统计弹窗和玻璃拟态界面。
+
+## 快速开始
+
+### 直接打开
+
+直接打开 [index.html](F:\shadow's homepage\index.html) 即可运行。
+
+### 本地静态服务
+
+推荐在调试麦克风、摄像头、录屏等功能时使用本地服务：
+
+```bash
+python -m http.server 8000
 ```
+
+然后访问 [http://localhost:8000](http://localhost:8000)。
+
+提示：部分浏览器在 `file://` 协议下会限制麦克风、摄像头和录屏能力。
+
+## 目录结构
+
+```text
 shadow's homepage/
-├── css/             # 样式文件
-│   └── style.css    # 主样式文件
-├── data/            # 数据文件
-│   └── data.js      # 网站链接和默认数据
-├── js/              # JavaScript 文件
-│   └── script.js    # 主要功能逻辑
-├── images/          # 图片资源
-│   ├── avatar.jpg   # 头像图片
-│   └── avatar_1.png # 图标图片
-├── wallpaper/       # 壁纸资源
-│   └── 1.mp4        # 背景视频
-├── index.html       # 主页面
-└── README.md        # 项目说明
+├─ index.html
+├─ README.md
+├─ css/
+│  ├─ style.css
+│  └─ stats.css
+├─ data/
+│  └─ data.js
+├─ images/
+│  ├─ avatar.jpg
+│  ├─ avatar_1.png
+│  └─ favicon.ico
+├─ js/
+│  ├─ app-state.js
+│  ├─ background.js
+│  ├─ backup.js
+│  ├─ countdown.js
+│  ├─ links.js
+│  ├─ media.js
+│  ├─ script.js
+│  ├─ search.js
+│  ├─ stats-data.js
+│  ├─ stats-ui.js
+│  ├─ stats.js
+│  ├─ storage.js
+│  └─ utils.js
+├─ vendor/
+│  ├─ fontawesome/
+│  ├─ fonts/
+│  ├─ lunar/
+│  └─ pinyin/
+└─ wallpaper/
+   └─ 1.mp4
 ```
 
-## 功能说明
+## 核心文件
 
-1. **网站链接管理**：
-   - 分类展示网站链接
-   - 支持编辑、添加和删除链接
-   - 支持自定义链接名称和URL
+- [index.html](F:\shadow's homepage\index.html)：页面入口、DOM 结构和资源引用。
+- [css/style.css](F:\shadow's homepage\css\style.css)：全局样式、布局、主题和组件视觉。
+- [css/stats.css](F:\shadow's homepage\css\stats.css)：统计弹窗和图表相关样式。
+- [data/data.js](F:\shadow's homepage\data\data.js)：默认链接、默认倒数日、默认标题与时钟位置。
+- [js/app-state.js](F:\shadow's homepage\js\app-state.js)：全局运行状态与持久化入口。
+- [js/script.js](F:\shadow's homepage\js\script.js)：应用启动流程、全局事件绑定和基础运行逻辑。
+- [js/links.js](F:\shadow's homepage\js\links.js)：导航渲染、编辑模式和点击统计入口。
+- [js/search.js](F:\shadow's homepage\js\search.js)：搜索、搜索历史和拼音匹配。
+- [js/countdown.js](F:\shadow's homepage\js\countdown.js)：倒数日数据处理、农历生日逻辑和表单管理。
+- [js/stats-data.js](F:\shadow's homepage\js\stats-data.js)：统计数据归档、聚合和持久化。
+- [js/stats-ui.js](F:\shadow's homepage\js\stats-ui.js)：统计弹窗、排行榜和图表渲染。
+- [js/media.js](F:\shadow's homepage\js\media.js)：音频可视化、摄像头和录屏导出。
+- [js/background.js](F:\shadow's homepage\js\background.js)：背景粒子动画。
+- [js/backup.js](F:\shadow's homepage\js\backup.js)：导入 / 导出逻辑。
+- [js/storage.js](F:\shadow's homepage\js\storage.js)：`localStorage` 键管理和读写封装。
+- [js/utils.js](F:\shadow's homepage\js\utils.js)：校验、容错和依赖降级工具。
 
-2. **倒数日功能**：
-   - 支持添加普通倒数日
-   - 支持添加公历生日（自动续期）
-   - 支持添加农历生日（自动续期）
-   - 显示最近的倒数日
+## 本地依赖
 
-3. **音频可视化**：
-   - 麦克风声纹律动效果
-   - 支持开启/关闭音频可视化
+项目当前已经将常用外链资源本地化，默认不依赖 CDN：
 
-4. **摄像头功能**：
-   - 悬浮窗显示摄像头画面
-   - 支持录制视频
-   - 支持最小化/还原摄像头窗口
+- [vendor/fontawesome](F:\shadow's homepage\vendor\fontawesome)：图标字体与样式
+- [vendor/fonts](F:\shadow's homepage\vendor\fonts)：标题字体资源
+- [vendor/lunar](F:\shadow's homepage\vendor\lunar)：农历日期计算库
+- [vendor/pinyin](F:\shadow's homepage\vendor\pinyin)：拼音匹配库
 
-5. **主题切换**：
-   - 支持浅色/深色模式切换
-   - 主题设置自动保存
+即使网络较差，页面核心功能也能正常运行。
 
-6. **时钟和日期**：
-   - 实时显示时间和日期
-   - 支持拖拽调整时钟位置
+## 数据存储
 
-7. **搜索功能**：
-   - 集成必应搜索
-   - 搜索历史记录功能
-   - 支持清除单个或所有搜索历史
+页面数据默认保存在浏览器 `localStorage` 中，主要包括：
 
-8. **数据备份和恢复**：
-   - 支持导出所有数据为JSON文件
-   - 支持导入备份文件恢复数据
-   - 定期提醒用户备份数据
+- 导航链接数据
+- 搜索历史
+- 倒数日数据
+- 点击次数
+- 在线时长
+- 统计明细数据
+- 深浅色主题偏好
+- 时钟位置
+- 首页寄语和律动文案
+- 最近备份时间
 
-9. **统计功能**：
-   - 记录网站链接点击次数
-   - 累计在线时间统计
-   - 数据持久化存储
+清理站点数据会导致本地配置丢失，建议定期使用导出功能备份。
 
-## 如何使用
+## 备份与恢复
 
-1. **本地运行**：
-   - 克隆或下载项目到本地
-   - 使用本地服务器打开 `index.html` 文件
-   - 例如：使用 `python -m http.server 8000` 启动本地服务器，然后访问 `http://localhost:8000`
+导出的 JSON 备份包含：
 
-2. **编辑模式**：
-   - 点击右上角的齿轮图标进入编辑模式
-   - 在编辑模式下，可以点击链接卡片修改链接
-   - 可以点击艺术字修改首页寄语
-   - 可以点击时钟区域管理倒数日
+- 链接数据
+- 倒数日数据
+- 时钟位置
+- 自定义标题
+- 点击次数
+- 在线时长
+- 统计明细
 
-3. **搜索功能**：
-   - 在搜索框中输入关键词，按回车键或点击GO按钮进行搜索
-   - 点击搜索框可以查看搜索历史记录
-   - 点击历史记录项可以快速执行搜索
-   - 点击历史记录项右侧的删除按钮可以删除单个历史记录
-   - 点击"清空"按钮可以清除所有搜索历史
-
-4. **统计功能**：
-   - 页面底部会显示点击次数和累计在线时间
-   - 点击网站链接时，点击次数会自动增加
-   - 页面打开时，在线时间会自动累计
-
-5. **自定义设置**：
-   - 修改 `data/data.js` 文件中的默认数据
-   - 修改 `css/style.css` 文件中的样式
-   - 修改 `js/script.js` 文件中的功能逻辑
-
-## 如何备份和恢复数据
-
-1. **备份数据**：
-   - 点击右上角的导出图标
-   - 浏览器会下载一个包含所有数据的JSON文件，包括链接、倒数日、时钟位置、标题、统计数据等
-
-2. **恢复数据**：
-   - 点击右上角的导入图标
-   - 选择之前备份的JSON文件
-   - 系统会自动恢复所有数据，并询问是否导入统计数据
-
-3. **备份提醒**：
-   - 系统会在您超过一周没有备份数据时提醒您
-   - 导出数据时会自动更新备份时间，避免频繁提醒
-
-## 技术栈
-
-- HTML5
-- CSS3
-- JavaScript (ES6+)
-- Font Awesome
-- Lunar JavaScript (农历计算)
+导入后会按备份内容恢复对应配置和统计数据。
 
 ## 浏览器兼容性
 
-建议使用以下浏览器以获得最佳体验：
-- Google Chrome
-- Mozilla Firefox
-- Microsoft Edge
-- Safari
+推荐使用最新版 Chrome、Edge、Firefox 等现代浏览器。  
+Safari 也可使用，但摄像头、录屏和媒体权限行为可能略有差异。
 
-## 注意事项
+## 开发说明
 
-1. **摄像头和麦克风权限**：
-   - 使用摄像头和音频可视化功能需要浏览器权限
-   - 首次使用时会提示授权，请点击允许
+- 这是一个纯静态前端项目，没有打包流程。
+- 修改 HTML / CSS / JS 后，刷新页面即可看到效果。
+- 如果继续扩展，建议保持 `data/` 放默认数据、`js/` 按功能拆分、`vendor/` 放本地依赖 的结构。
+- 当前部分运行数据依赖浏览器存储，调试时请注意不要误清站点数据。
 
-2. **数据存储**：
-   - 所有数据存储在浏览器的本地存储中
-   - 清除浏览器缓存可能会导致数据丢失
-   - 建议定期备份数据
+## License
 
-3. **性能优化**：
-   - 背景视频可能会影响性能，尤其是在低配置设备上
-   - 可以根据需要替换为静态背景图片
-
-4. **页面布局**：
-   - 页面设计为刚好撑满屏幕
-   - 只有内容区域会出现滚动条，提高用户体验
-
-## 许可证
-
-本项目仅供个人使用，未经许可不得用于商业用途。
-
-## 更新日志
-
-- 2026-04-07：添加点击次数统计、在线时间统计、搜索历史记录和数据备份提醒功能，优化页面布局
-- 2026-04-07：完成代码模块化拆分，优化项目结构
-- 2026-04-01：添加摄像头录制功能
-- 2026-03-15：添加音频可视化效果
-- 2026-03-01：添加倒数日功能
-- 2026-02-15：初始版本发布
+当前仓库未提供明确开源许可证。  
+如果你准备公开分发或商用，建议先补充合适的 License。
