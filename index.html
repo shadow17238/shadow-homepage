@@ -102,17 +102,29 @@
     </div>
 
     <div class="modal-overlay" id="editModal">
-        <div class="modal">
-            <h3 id="modalTitle">编辑内容</h3>
-            <div class="form-group" id="groupName">
-                <label id="labelName">显示名称</label>
-                <input type="text" id="editName">
+        <div class="modal edit-modal">
+            <div class="edit-modal-aurora edit-modal-aurora-one"></div>
+            <div class="edit-modal-aurora edit-modal-aurora-two"></div>
+            <div class="edit-modal-header">
+                <div>
+                    <h3 id="modalTitle">编辑内容</h3>
+                    <p class="edit-modal-subtitle" id="editModalSubtitle">调整当前卡片的名称和目标地址</p>
+                </div>
+                <button class="stats-close-btn edit-modal-close-btn" id="modalCloseBtn" title="关闭编辑">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
-            <div class="form-group" id="groupUrl">
-                <label>网址 URL</label>
-                <input type="text" id="editUrl">
+            <div class="edit-modal-body">
+                <div class="form-group" id="groupName">
+                    <label id="labelName">显示名称</label>
+                    <input type="text" id="editName">
+                </div>
+                <div class="form-group" id="groupUrl">
+                    <label>网址 URL</label>
+                    <input type="text" id="editUrl">
+                </div>
             </div>
-            <div class="modal-btns">
+            <div class="modal-btns edit-modal-btns">
                 <button class="btn btn-cancel" id="modalCancelBtn">取消</button>
                 <button class="btn btn-save" id="modalSaveBtn">保存</button>
             </div>
@@ -121,34 +133,53 @@
 
     <div class="modal-overlay" id="countdownModal">
         <div class="modal countdown-modal">
-            <h3 id="countdownModalTitle">管理倒数日</h3>
-            <div id="cd-list-edit" class="countdown-edit-list"></div>
-
-            <div class="countdown-form">
-                <div class="form-group">
-                    <label>事件名称</label>
-                    <input type="text" id="cdName" placeholder="例如：考试、生日、旅行">
+            <div class="countdown-modal-aurora countdown-modal-aurora-one"></div>
+            <div class="countdown-modal-aurora countdown-modal-aurora-two"></div>
+            <div class="countdown-modal-header">
+                <div>
+                    <h3 id="countdownModalTitle">管理倒数日</h3>
+                    <p class="countdown-modal-subtitle" id="countdownModalSubtitle">整理提醒顺序，添加新的重要日期。</p>
                 </div>
-                <div class="form-group">
-                    <label>日期设置</label>
-                    <div class="countdown-type-row">
-                        <select id="cdType" class="countdown-type-select">
-                            <option value="normal">普通日期 (过期删除)</option>
-                            <option value="solar_bday">公历生日 (自动续期)</option>
-                            <option value="lunar_bday">农历生日 (自动续期)</option>
-                        </select>
-                        <button type="button" class="countdown-reset-btn" id="cdResetBtn">重置</button>
-                    </div>
-                    <input type="date" id="cdDateInput">
-                    <div id="lunarInputParams" class="lunar-input-params">
-                        <input type="number" id="lunarMonth" class="lunar-number" placeholder="月(1-12)">
-                        <input type="number" id="lunarDay" class="lunar-number" placeholder="日(1-30)">
-                        <span class="lunar-hint">(无需年份)</span>
+                <button class="stats-close-btn countdown-modal-close-btn" id="countdownCloseBtn" title="关闭倒数日">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="countdown-modal-body">
+                <div class="countdown-section countdown-section-list">
+                    <div class="countdown-section-title">当前事项</div>
+                    <div id="cd-list-edit" class="countdown-edit-list"></div>
+                </div>
+
+                <div class="countdown-section countdown-section-form">
+                    <div class="countdown-section-title">新增或编辑</div>
+                    <div class="countdown-form">
+                        <div class="form-group">
+                            <label>事件名称</label>
+                            <input type="text" id="cdName" placeholder="例如：考试、生日、旅行">
+                        </div>
+                        <div class="form-group">
+                            <label>日期设置</label>
+                            <div class="countdown-type-row">
+                                <select id="cdType" class="countdown-type-select">
+                                    <option value="normal">普通日期 (过期删除)</option>
+                                    <option value="solar_bday">公历生日 (自动续期)</option>
+                                    <option value="lunar_bday">农历生日 (自动续期)</option>
+                                </select>
+                                <button type="button" class="countdown-reset-btn" id="cdResetBtn">重置</button>
+                            </div>
+                            <input type="date" id="cdDateInput">
+                            <div id="lunarInputParams" class="lunar-input-params">
+                                <input type="number" id="lunarMonth" class="lunar-number" placeholder="月(1-12)">
+                                <input type="number" id="lunarDay" class="lunar-number" placeholder="日(1-30)">
+                                <span class="lunar-hint">(无需年份)</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="modal-btns">
+            <div class="modal-btns countdown-modal-btns">
                 <button class="btn btn-cancel" id="cdCloseBtn">关闭</button>
                 <button class="btn btn-save" id="cdAddBtn">添加</button>
             </div>

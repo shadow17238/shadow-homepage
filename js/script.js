@@ -1,4 +1,6 @@
 const MAX_HISTORY_ITEMS = 10;
+let editModalPointerDownOnOverlay = false;
+let statsModalPointerDownOnOverlay = false;
 
 window.onload = function () {
     AppState.loadState();
@@ -168,8 +170,14 @@ function bindEventListeners() {
         }
     });
 
-    document.getElementById('editModal').addEventListener('click', function(e) {
-        if (e.target === this) closeModal();
+    const editModal = document.getElementById('editModal');
+    editModal.addEventListener('mousedown', function(e) {
+        editModalPointerDownOnOverlay = e.target === this;
+    });
+    editModal.addEventListener('mouseup', function(e) {
+        const shouldClose = editModalPointerDownOnOverlay && e.target === this;
+        editModalPointerDownOnOverlay = false;
+        if (shouldClose) closeModal();
     });
 
     document.getElementById('searchInput').addEventListener('input', function() {
@@ -193,6 +201,10 @@ function bindEventListeners() {
     });
 
     document.getElementById('clock-box').addEventListener('click', function() {
+        if (this.dataset.suppressClick === 'true') {
+            this.dataset.suppressClick = 'false';
+            return;
+        }
         openCountdownModal();
     });
 
@@ -216,6 +228,10 @@ function bindEventListeners() {
         closeModal();
     });
 
+    document.getElementById('modalCloseBtn').addEventListener('click', function() {
+        closeModal();
+    });
+
     document.getElementById('modalSaveBtn').addEventListener('click', function() {
         saveData();
     });
@@ -225,6 +241,11 @@ function bindEventListeners() {
     });
 
     document.getElementById('cdCloseBtn').addEventListener('click', function() {
+        resetCountdownForm();
+        document.getElementById('countdownModal').style.display = 'none';
+    });
+
+    document.getElementById('countdownCloseBtn').addEventListener('click', function() {
         resetCountdownForm();
         document.getElementById('countdownModal').style.display = 'none';
     });
@@ -253,8 +274,14 @@ function bindEventListeners() {
         importData(this);
     });
 
-    document.getElementById('statsModal').addEventListener('click', function(e) {
-        if (e.target === this) closeStatsModal();
+    const statsModal = document.getElementById('statsModal');
+    statsModal.addEventListener('mousedown', function(e) {
+        statsModalPointerDownOnOverlay = e.target === this;
+    });
+    statsModal.addEventListener('mouseup', function(e) {
+        const shouldClose = statsModalPointerDownOnOverlay && e.target === this;
+        statsModalPointerDownOnOverlay = false;
+        if (shouldClose) closeStatsModal();
     });
 
     window.addEventListener('beforeunload', function() {

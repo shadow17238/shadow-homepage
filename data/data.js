@@ -49,7 +49,7 @@ const defaultData = [
             },
             {
                 "name": "个人课表查询",
-                "url": "#"
+                "url": "weixin://"
             }
         ]
     },
