@@ -25,7 +25,7 @@ const defaultData = [
             },
             {
                 "name": "网上报名",
-                "url": "#"
+                "url": "obsidian://open"
             },
             {
                 "name": "教务网(研)",
@@ -37,7 +37,7 @@ const defaultData = [
             },
             {
                 "name": "PTA",
-                "url": "https://pintia.cn/"
+                "url": "clash://"
             },
             {
                 "name": "素质拓展网",
@@ -147,7 +147,7 @@ const defaultData = [
             },
             {
                 "name": "千问",
-                "url": "https://www.qianwen.com/chat/"
+                "url": "https://chat.deepseek.com/a/chat/"
             },
             {
                 "name": "数软作业",
