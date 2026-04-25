@@ -1,14 +1,26 @@
-﻿#bg-video {
-    position: fixed;       top: 0;
-    left: 0;
-    width: 100%;           height: 100%;          object-fit: cover;     z-index: -1;           }
+﻿/* ============================================================
+   核心全局样式与变量
+   ============================================================ */
 
+/* 动态背景视频：覆盖全屏，作为最底层背景 */
+#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+}
+
+/* 全局 CSS 变量定义：控制主题颜色、透明度、阴影等 */
 :root {
     --bg-color: #f0f2f5;
     --header-bg: #ffffff;
     --text-color: #555555;
     --title-color: #333;
-    --card-bg: #ffffff; --btn-bg: #ffffff;
+    --card-bg: #ffffff;
+    --btn-bg: #ffffff;
     --btn-hover: #f0f0f0;
     --border-color: #eaeaea;
     --accent-color: #3c78d8;
@@ -52,9 +64,10 @@ header {
     justify-content: space-between;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 2000; /* 提升 header 层级 */
+    backdrop-filter: blur(10px);
+    overflow: visible !important; /* 核心修复：允许天气面板溢出显示 */
 }
-
 .logo {
     font-size: 18px;
     font-weight: 500;

@@ -4,32 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shadow's Homepage</title>
+    <!-- 图标设置 -->
     <link rel="icon" href="images/favicon.ico" sizes="any">
     <link rel="icon" href="images/avatar_1.png" type="image/png">
     <link rel="shortcut icon" href="images/favicon.ico">
+    
+    <!-- 第三方库样式 -->
     <link href="vendor/fontawesome/css/all.min.css" rel="stylesheet">
     <link href="vendor/fonts/ma-shan-zheng.css" rel="stylesheet">
+    
+    <!-- 项目核心样式 -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/stats.css">
     <link rel="stylesheet" href="css/weather.css">
+    
+    <!-- 基础依赖脚本 -->
     <script src="vendor/lunar/lunar.min.js"></script>
     <script src="vendor/pinyin/pinyin-pro.js"></script>
     <script src="data/data.js"></script>
 </head>
 <body>
 
+    <!-- 背景视频 -->
     <video autoplay loop muted playsinline id="bg-video">
         <source src="wallpaper/1.mp4" type="video/mp4">
     </video>
     
+    <!-- 交互式背景 Canvas (粒子系统) -->
     <canvas id="interactive-bg" class="interactive-bg"></canvas>
 
+    <!-- 可拖拽时钟与倒数日容器 -->
     <div id="clock-box" class="clock-container">
         <div class="time" id="clockTime">00:00:00</div>
         <div class="date" id="clockDate">YYYY-MM-DD</div>
         <div id="countdown-wrapper" class="countdown-list"></div>
     </div>
 
+    <!-- 顶部导航栏 -->
     <header class="animate-in-top">
         <div class="header-left" style="display: flex; align-items: center;">
             <div class="logo">
@@ -37,19 +48,21 @@
                 <span>shadow's homepage</span>
             </div>
 
+            <!-- 天气挂件 -->
             <div id="weather-widget-container" style="position: relative;">
                 <div id="weather-widget" class="weather-widget" style="margin-left: 10px;">
                     <i class="fa-solid fa-spinner fa-spin"></i>
                     <span>加载中...</span>
                 </div>
-                <div id="weather-details" class="weather-details-panel">
-                    <!-- 详情内容由 JS 渲染 -->
-                </div>
+                <!-- 天气详情悬浮面板 -->
+                <div id="weather-details" class="weather-details-panel"></div>
             </div>
         </div>
 
+        <!-- 中心寄语文字 -->
         <div class="romantic-text" id="artText" style="position: absolute; left: 50%; transform: translateX(-50%);">爱意随风起，风止意难平</div>
 
+        <!-- 顶部操作按钮组 -->
         <div class="header-actions">
             <button class="icon-btn" id="statsBtn" title="查看统计" data-fallback="统计">
                 <i class="fa-solid fa-chart-line"></i>
@@ -78,13 +91,16 @@
         </div>
     </header>
 
+    <!-- 搜索区域 -->
     <div class="search-section animate-in-top" style="--delay: 0.1s">
         <div class="search-box">
+            <!-- 搜索引擎切换 -->
             <div class="search-engine-selector" id="searchEngineSelector" title="点击切换搜索引擎">
                 <img src="images/bing.ico" id="currentSearchIcon" class="search-engine-icon" alt="搜索引擎">
             </div>
             <input type="text" id="searchInput" placeholder=" 请输入搜索内容~">
             <button class="search-btn" id="searchBtn">GO</button>
+            <!-- 搜索历史悬浮窗 -->
             <div id="searchHistoryContainer" class="search-history search-history-container">
                 <div class="history-header">
                     <span class="history-title">搜索历史</span>
@@ -94,9 +110,12 @@
         </div>
     </div>
 
+    <!-- 主内容区域 (链接导航 + 音频可视化) -->
     <div class="container page-container animate-in-bottom" style="--delay: 0.2s">
+        <!-- 动态生成的链接网格 -->
         <div class="main-grid" id="linkContainer"></div>
 
+        <!-- 音频可视化 Canvas -->
         <div id="visualizer-container" class="visualizer-container">
             <div class="audio-text romantic-text" id="audioText">
                 纵容的 喜欢的 讨厌的 宠溺的 厌倦的<br>一个个慢慢暗淡
@@ -104,6 +123,7 @@
             <canvas id="visualizer" class="visualizer-canvas" width="800" height="150"></canvas>
         </div>
         
+        <!-- 底部基础统计 -->
         <div class="stats-container">
             <div class="stat-item">
                 <div class="stat-label">点击次数</div>
@@ -116,6 +136,7 @@
         </div>
     </div>
 
+    <!-- 链接/寄语编辑 弹窗 -->
     <div class="modal-overlay" id="editModal">
         <div class="modal edit-modal">
             <div class="edit-modal-aurora edit-modal-aurora-one"></div>
@@ -146,8 +167,10 @@
         </div>
     </div>
 
+    <!-- 倒数日管理 弹窗 -->
     <div class="modal-overlay" id="countdownModal">
         <div class="modal countdown-modal">
+            <!-- 装饰性光晕 -->
             <div class="countdown-modal-aurora countdown-modal-aurora-one"></div>
             <div class="countdown-modal-aurora countdown-modal-aurora-two"></div>
             <div class="countdown-modal-header">
@@ -161,11 +184,13 @@
             </div>
 
             <div class="countdown-modal-body">
+                <!-- 左侧：现有事项列表 -->
                 <div class="countdown-section countdown-section-list">
                     <div class="countdown-section-title">当前事项</div>
                     <div id="cd-list-edit" class="countdown-edit-list"></div>
                 </div>
 
+                <!-- 右侧：新增/编辑表单 -->
                 <div class="countdown-section countdown-section-form">
                     <div class="countdown-section-title">新增或编辑</div>
                     <div class="countdown-form">
@@ -183,7 +208,9 @@
                                 </select>
                                 <button type="button" class="countdown-reset-btn" id="cdResetBtn">重置</button>
                             </div>
+                            <!-- 普通日期输入 -->
                             <input type="date" id="cdDateInput">
+                            <!-- 农历输入 (由 JS 切换显示) -->
                             <div id="lunarInputParams" class="lunar-input-params">
                                 <input type="number" id="lunarMonth" class="lunar-number" placeholder="月(1-12)">
                                 <input type="number" id="lunarDay" class="lunar-number" placeholder="日(1-30)">
@@ -201,8 +228,10 @@
         </div>
     </div>
 
+    <!-- 数据统计 详细弹窗 -->
     <div class="modal-overlay" id="statsModal">
         <div class="modal stats-modal">
+            <!-- 装饰背景 -->
             <div class="stats-aurora stats-aurora-one"></div>
             <div class="stats-aurora stats-aurora-two"></div>
             <div class="stats-modal-header">
@@ -215,30 +244,33 @@
                 </button>
             </div>
 
+            <!-- 时间范围切换 -->
             <div class="stats-range-switcher" id="statsRangeSwitcher">
                 <button class="stats-range-btn active" data-range="today">今日</button>
                 <button class="stats-range-btn" data-range="week">本周</button>
                 <button class="stats-range-btn" data-range="month">本月</button>
             </div>
 
+            <!-- 数据概览卡片 -->
             <div class="stats-summary-grid">
                 <div class="stats-summary-card stats-summary-card-featured">
-                    <div class="stats-summary-label" id="statsTopSiteLabel">近 30 天最热门网页</div>
+                    <div class="stats-summary-label" id="statsTopSiteLabel">最热门网页</div>
                     <div class="stats-summary-value" id="statsTopSite">暂无数据</div>
                     <div class="stats-summary-meta" id="statsTopSiteMeta">快去点击常用网页吧</div>
                 </div>
                 <div class="stats-summary-card">
-                    <div class="stats-summary-label" id="statsClicksLabel">近 30 天总点击</div>
+                    <div class="stats-summary-label" id="statsClicksLabel">总点击</div>
                     <div class="stats-summary-value" id="statsMonthClicks">0</div>
                     <div class="stats-summary-meta">按天累计统计</div>
                 </div>
                 <div class="stats-summary-card">
-                    <div class="stats-summary-label" id="statsOnlineLabel">近 30 天在线时长</div>
+                    <div class="stats-summary-label" id="statsOnlineLabel">在线时长</div>
                     <div class="stats-summary-value" id="statsMonthOnline">00:00:00</div>
                     <div class="stats-summary-meta">页面停留总时长</div>
                 </div>
             </div>
 
+            <!-- 关键指标条 -->
             <div class="stats-insight-strip">
                 <div class="stats-chip">
                     <span class="stats-chip-label">点击峰值日</span>
@@ -254,31 +286,35 @@
                 </div>
             </div>
 
+            <!-- 详细内容区域 (排行榜 + 图表) -->
             <div class="stats-content-grid">
                 <div class="stats-panel stats-panel-ranking">
-                    <div class="stats-panel-title">最近 30 天网页点击排行榜</div>
+                    <div class="stats-panel-title">网页点击排行榜</div>
                     <div class="stats-ranking-list" id="statsRankingList"></div>
                 </div>
 
                 <div class="stats-panel stats-panel-chart">
-                    <div class="stats-panel-title">每天点击次数</div>
+                    <div class="stats-panel-title">点击趋势</div>
                     <div class="chart-card">
-                        <svg id="clickTrendChart" class="trend-chart" viewBox="0 0 640 260" preserveAspectRatio="xMidYMid meet"></svg>
+                        <svg id="clickTrendChart" class="trend-chart" viewBox="0 0 640 260"></svg>
                     </div>
+                    <!-- 24 小时分布图容器 -->
                     <div class="stats-mini-list" id="statsTopClickDays"></div>
                 </div>
 
                 <div class="stats-panel stats-panel-chart stats-panel-online">
-                    <div class="stats-panel-title">每天在线时间</div>
+                    <div class="stats-panel-title">在线时长趋势</div>
                     <div class="chart-card">
-                        <svg id="onlineTrendChart" class="trend-chart" viewBox="0 0 640 260" preserveAspectRatio="xMidYMid meet"></svg>
+                        <svg id="onlineTrendChart" class="trend-chart" viewBox="0 0 640 260"></svg>
                     </div>
+                    <!-- 24 小时分布图容器 -->
                     <div class="stats-mini-list" id="statsTopOnlineDays"></div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 摄像头悬浮窗 -->
     <div id="camera-window" class="camera-floating-win camera-window-hidden">
         <div class="win-header" id="camera-header">
             <div class="win-controls">
@@ -289,15 +325,17 @@
         </div>
         <video id="camera-feed" autoplay playsinline muted></video>
 
+        <!-- 录制控制 -->
         <div class="camera-controls">
             <div id="record-timer" class="record-timer">00:00</div>
             <button id="recordBtn" class="record-btn" title="开始录制"></button>
         </div>
     </div>
 
+    <!-- 隐藏的文件导入框 -->
     <input type="file" id="importInput" class="hidden-file-input" accept=".json">
 
-    <!-- 天气设置 Modal -->
+    <!-- 天气设置 弹窗 -->
     <div class="modal-overlay" id="weatherModal">
         <div class="modal weather-modal">
             <div class="weather-aurora weather-aurora-one"></div>
@@ -339,6 +377,7 @@
         </div>
     </div>
 
+    <!-- 脚本加载 (严格按依赖顺序) -->
     <script src="js/utils.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/app-state.js"></script>

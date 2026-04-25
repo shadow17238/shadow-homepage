@@ -1,9 +1,23 @@
+/**
+ * 搜索历史记录最大存储条数
+ */
 const MAX_HISTORY_ITEMS = 100;
+/**
+ * 标记是否已绑定关闭搜索历史浮层的全局点击监听器
+ */
 let isSearchHistoryListenerBound = false;
+/**
+ * 标记是否已绑定更新搜索历史位置的窗口调整监听器
+ */
 let isSearchHistoryPositionListenerBound = false;
+/**
+ * 标记搜索历史容器是否已被正确挂载到 body 节点下
+ */
 let isSearchHistoryMountedToBody = false;
 
-// 搜索引擎配置
+/**
+ * 搜索引擎配置列表
+ */
 const searchEngines = [
     {
         id: 'bing',
@@ -28,16 +42,23 @@ const searchEngines = [
     }
 ];
 
+/**
+ * 当前选中的搜索引擎索引
+ */
 let currentEngineIndex = 0;
 
-// 初始化搜索引擎
+/**
+ * 初始化搜索引擎，加载用户偏好并应用 UI
+ */
 function initSearchEngine() {
+    // 从本地存储中读取先前选择的搜索引擎 ID
     const savedEngineId = localStorage.getItem('shadow_current_search_engine') || 'bing';
     currentEngineIndex = searchEngines.findIndex(e => e.id === savedEngineId);
     if (currentEngineIndex === -1) currentEngineIndex = 0;
     
     updateSearchEngineUI();
 
+    // 绑定切换引擎的点击事件
     const selector = document.getElementById('searchEngineSelector');
     if (selector) {
         selector.onclick = function(e) {
@@ -47,6 +68,9 @@ function initSearchEngine() {
     }
 }
 
+/**
+ * 循环切换到下一个搜索引擎
+ */
 function switchSearchEngine() {
     currentEngineIndex = (currentEngineIndex + 1) % searchEngines.length;
     const engine = searchEngines[currentEngineIndex];
@@ -54,6 +78,9 @@ function switchSearchEngine() {
     updateSearchEngineUI();
 }
 
+/**
+ * 更新搜索框相关的 UI 元素（图标、占位提示文案）
+ */
 function updateSearchEngineUI() {
     const engine = searchEngines[currentEngineIndex];
     const iconImg = document.getElementById('currentSearchIcon');
@@ -69,12 +96,17 @@ function updateSearchEngineUI() {
     }
 }
 
+/**
+ * 确保搜索历史浮层容器被正确挂载到 body 下，以便在 z-index 上覆盖其他元素
+ * @return {HTMLElement} 历史记录容器 DOM 元素
+ */
 function ensureSearchHistoryMounted() {
     const historyContainer = document.getElementById('searchHistoryContainer');
     if (!historyContainer || isSearchHistoryMountedToBody) {
         return historyContainer;
     }
 
+    // 挂载到 body 并阻止内部点击事件冒泡到文档
     document.body.appendChild(historyContainer);
     historyContainer.addEventListener('click', (event) => {
         event.stopPropagation();
@@ -83,6 +115,9 @@ function ensureSearchHistoryMounted() {
     return historyContainer;
 }
 
+/**
+ * 实时更新搜索历史浮层的位置，使其始终跟随搜索框并保持自适应宽度
+ */
 function updateSearchHistoryPosition() {
     const historyContainer = ensureSearchHistoryMounted();
     const searchBox = document.querySelector('.search-box');
@@ -92,6 +127,7 @@ function updateSearchHistoryPosition() {
 
     const rect = searchBox.getBoundingClientRect();
     const viewportPadding = 12;
+    // 动态计算宽度，确保在窄屏下不会超出可视区域
     const width = Math.min(rect.width, window.innerWidth - viewportPadding * 2);
     const left = Math.min(
         Math.max(rect.left, viewportPadding),
@@ -103,22 +139,37 @@ function updateSearchHistoryPosition() {
     historyContainer.style.width = `${width}px`;
 }
 
+/**
+ * 执行搜索逻辑，记录历史并打开结果页
+ */
 function doSearch() {
     const query = document.getElementById('searchInput').value.trim();
     if (!query) return;
 
+    // 添加到历史记录并进行持久化
     addToSearchHistory(query);
     const engine = searchEngines[currentEngineIndex];
     window.open(`${engine.url}${encodeURIComponent(query)}`, '_blank');
 }
 
+/**
+ * 处理搜索输入框的键盘事件（按下回车执行搜索）
+ * @param {KeyboardEvent} e - 事件对象
+ */
 function handleSearch(e) {
     if (e.key === 'Enter') doSearch();
 }
 
+/**
+ * 将搜索词添加到历史列表，实现去重置顶和容量限制
+ * @param {string} query - 搜索关键词
+ */
 function addToSearchHistory(query) {
+    // 过滤掉已存在的相同项
     searchHistory = searchHistory.filter(item => item !== query);
+    // 插入到列表开头
     searchHistory.unshift(query);
+    // 截取固定条数以防溢出
     if (searchHistory.length > MAX_HISTORY_ITEMS) {
         searchHistory = searchHistory.slice(0, MAX_HISTORY_ITEMS);
     }
@@ -126,10 +177,16 @@ function addToSearchHistory(query) {
     showSearchHistory();
 }
 
+/**
+ * 获取经过当前搜索词排序匹配后的历史列表
+ * @param {string} query - 搜索框当前实时输入的词
+ * @return {Array} 包含匹配逻辑权重排序后的历史数组
+ */
 function getSortedSearchHistory(query) {
     const trimmedQuery = (query || '').trim().toLowerCase();
     const historyWithIndex = searchHistory.map((item, index) => ({ item, index }));
 
+    // 如果搜索框为空，则按原始时间倒序排列
     if (!trimmedQuery) {
         return historyWithIndex;
     }
@@ -137,6 +194,7 @@ function getSortedSearchHistory(query) {
     const matched = [];
     const unmatched = [];
 
+    // 分拣出完全匹配（含拼音辅助匹配）的项目
     historyWithIndex.forEach(entry => {
         if (isSearchHistoryMatch(entry.item, trimmedQuery)) {
             matched.push(entry);
@@ -145,15 +203,23 @@ function getSortedSearchHistory(query) {
         }
     });
 
+    // 将匹配项置前返回
     return matched.concat(unmatched);
 }
 
+/**
+ * 判断历史记录条目是否符合当前的搜索关键词（支持多级降级：原词 -> 小写 -> 拼音）
+ * @param {string} item - 历史记录条目文案
+ * @param {string} normalizedQuery - 已处理好的规范化查询词
+ * @return {boolean}
+ */
 function isSearchHistoryMatch(item, normalizedQuery) {
     const normalizedItem = item.toLowerCase();
     if (normalizedItem.includes(normalizedQuery)) {
         return true;
     }
 
+    // 检查是否有 pinyin-pro 插件支持拼音模糊匹配
     const pinyinPro = window.pinyinPro;
     if (!pinyinPro || typeof pinyinPro.match !== 'function') {
         return false;
@@ -167,11 +233,15 @@ function isSearchHistoryMatch(item, normalizedQuery) {
     }
 }
 
+/**
+ * 构造并展示搜索历史浮层
+ */
 function showSearchHistory() {
     const historyContainer = ensureSearchHistoryMounted();
     const searchInput = document.getElementById('searchInput');
     if (!historyContainer) return;
 
+    // 没有任何历史时保持隐藏
     if (searchHistory.length === 0) {
         historyContainer.style.display = 'none';
         return;
@@ -181,6 +251,7 @@ function showSearchHistory() {
     historyContainer.style.display = 'block';
     updateSearchHistoryPosition();
 
+    // 构造列表 DOM 片段
     const historyList = document.createElement('div');
     historyList.className = 'history-list';
 
@@ -195,6 +266,7 @@ function showSearchHistory() {
         const text = document.createElement('span');
         text.textContent = item;
 
+        // 右侧“移除”按钮
         const removeBtn = document.createElement('span');
         removeBtn.className = 'history-remove';
         const removeIcon = document.createElement('i');
@@ -213,6 +285,7 @@ function showSearchHistory() {
 
     historyContainer.innerHTML = '';
 
+    // 构造页眉（包含“清空”按钮）
     const headerDiv = document.createElement('div');
     headerDiv.className = 'history-header';
 
@@ -232,6 +305,7 @@ function showSearchHistory() {
 
     updateSearchHistoryPosition();
 
+    // 首次触发时绑定全局自动隐藏事件
     if (!isSearchHistoryListenerBound) {
         isSearchHistoryListenerBound = true;
         setTimeout(() => {
@@ -239,6 +313,7 @@ function showSearchHistory() {
         }, 100);
     }
 
+    // 绑定窗口改变大小时的布局自适应
     if (!isSearchHistoryPositionListenerBound) {
         isSearchHistoryPositionListenerBound = true;
         window.addEventListener('resize', updateSearchHistoryPosition);
@@ -246,6 +321,9 @@ function showSearchHistory() {
     }
 }
 
+/**
+ * 清空用户所有的搜索历史（需二次确认）
+ */
 function clearSearchHistory() {
     if (!confirm('确定要清空所有搜索历史吗？')) return;
 
@@ -254,10 +332,15 @@ function clearSearchHistory() {
     showSearchHistory();
 }
 
+/**
+ * 点击浮层外部时自动隐藏浮层
+ * @param {MouseEvent} e - 事件对象
+ */
 function closeSearchHistory(e) {
     const historyContainer = ensureSearchHistoryMounted();
     const searchInput = document.getElementById('searchInput');
 
+    // 如果点击的不是输入框且不在浮层内部，则关闭
     if (historyContainer && !historyContainer.contains(e.target) && e.target !== searchInput) {
         historyContainer.style.display = 'none';
         document.removeEventListener('click', closeSearchHistory);
@@ -265,6 +348,10 @@ function closeSearchHistory(e) {
     }
 }
 
+/**
+ * 选中一条历史记录，填入输入框并执行搜索
+ * @param {string} item - 历史词
+ */
 function selectHistoryItem(item) {
     document.getElementById('searchInput').value = item;
     const historyContainer = ensureSearchHistoryMounted();
@@ -276,6 +363,10 @@ function selectHistoryItem(item) {
     doSearch();
 }
 
+/**
+ * 移除指定的单条历史记录项
+ * @param {number} index - 记录项在数组中的索引
+ */
 function removeHistoryItem(index) {
     searchHistory.splice(index, 1);
     AppState.persistSearchHistory();
@@ -286,5 +377,5 @@ function removeHistoryItem(index) {
     }
 }
 
-// 导出初始化函数供主逻辑调用
+// 导出全局初始化接口
 window.initSearchEngine = initSearchEngine;

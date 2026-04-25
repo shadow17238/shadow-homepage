@@ -1,4 +1,8 @@
-/* 天气挂件样式 */
+/* ============================================================
+   天气挂件与设置面板样式
+   ============================================================ */
+
+/* 顶部导航栏的天气小挂件 */
 .weather-widget {
     display: flex;
     align-items: center;
@@ -13,6 +17,8 @@
     cursor: pointer;
     transition: all 0.3s ease;
     border: 1px solid rgba(0, 120, 255, 0.25);
+    position: relative;
+    z-index: 10;
 }
 
 body.dark-mode .weather-widget {
@@ -26,17 +32,13 @@ body.dark-mode .weather-widget {
     transform: translateY(-2px);
 }
 
-body.dark-mode .weather-widget:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
 .weather-icon {
     font-size: 18px;
-    color: #f57c00; /* 浅色模式下用深橙色，更清晰 */
+    color: #f57c00;
 }
 
 body.dark-mode .weather-icon {
-    color: #ffeb3b; /* 深色模式保持亮黄色 */
+    color: #ffeb3b;
 }
 
 .weather-info {
@@ -52,98 +54,48 @@ body.dark-mode .weather-icon {
     font-weight: bold;
 }
 
-.weather-city-name {
-    font-size: 12px;
-    opacity: 0.8;
-}
-
-.weather-pop-info {
-    font-size: 11px;
-    color: #0288d1; /* 浅色模式下用稍深的蓝色 */
-}
-
-body.dark-mode .weather-pop-info {
-    color: #81d4fa; /* 深色模式保持浅蓝色 */
-}
-
-/* 天气详细面板 (Popover/Dropdown) */
+/* 天气详情悬浮面板 */
 .weather-details-panel {
     position: absolute;
-    top: 45px;
+    top: 50px;
     left: 10px;
-    width: 320px;
+    width: 340px;
     background:
-        radial-gradient(circle at top left, rgba(54, 207, 201, 0.15), transparent 30%),
-        radial-gradient(circle at top right, rgba(124, 77, 255, 0.15), transparent 30%),
-        rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.35);
+        radial-gradient(circle at top left, rgba(54, 207, 201, 0.2), transparent 40%),
+        radial-gradient(circle at top right, rgba(124, 77, 255, 0.2), transparent 40%),
+        rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 24px;
     padding: 20px;
-    z-index: 1000;
-    display: none;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    z-index: 99999;
+    display: none; /* 默认隐藏 */
+    box-shadow: 0 30px 60px rgba(0,0,0,0.2);
     color: #333;
-    animation: fadeInDown 0.3s ease;
+    animation: fadeInDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: auto;
+}
+
+/* 核心修复：显示类 */
+.weather-details-panel.active {
+    display: block !important;
 }
 
 body.dark-mode .weather-details-panel {
-    background:
-        radial-gradient(circle at top left, rgba(54, 207, 201, 0.12), transparent 30%),
-        radial-gradient(circle at top right, rgba(124, 77, 255, 0.16), transparent 30%),
-        rgba(30, 30, 30, 0.85);
+    background: rgba(30, 30, 30, 0.9);
     border-color: rgba(255, 255, 255, 0.08);
     color: #eee;
 }
 
-.weather-details-panel.active {
-    display: block;
-}
-
-/* 天气设置 Modal 风格统一 */
 .weather-modal {
     position: relative;
     width: min(420px, calc(100vw - 32px)) !important;
     padding: 24px !important;
     border-radius: 28px !important;
-    border: 1px solid rgba(255, 255, 255, 0.35) !important;
     background:
         radial-gradient(circle at top left, rgba(54, 207, 201, 0.18), transparent 28%),
         radial-gradient(circle at top right, rgba(124, 77, 255, 0.18), transparent 30%),
         linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(245, 249, 255, 0.85)) !important;
     box-shadow: 0 24px 80px rgba(15, 23, 42, 0.25) !important;
-    overflow: hidden;
-}
-
-body.dark-mode .weather-modal {
-    background:
-        radial-gradient(circle at top left, rgba(54, 207, 201, 0.12), transparent 28%),
-        radial-gradient(circle at top right, rgba(124, 77, 255, 0.16), transparent 30%),
-        linear-gradient(145deg, rgba(24, 24, 24, 0.95), rgba(36, 36, 36, 0.9)) !important;
-    border-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-.weather-aurora {
-    position: absolute;
-    border-radius: 999px;
-    filter: blur(18px);
-    opacity: 0.6;
-    pointer-events: none;
-    z-index: -1;
-}
-
-.weather-aurora-one {
-    width: 150px;
-    height: 150px;
-    top: -40px;
-    left: -20px;
-    background: radial-gradient(circle, rgba(54, 207, 201, 0.3), transparent 70%);
-}
-
-.weather-aurora-two {
-    width: 180px;
-    height: 180px;
-    top: -50px;
-    right: -20px;
-    background: radial-gradient(circle, rgba(124, 77, 255, 0.25), transparent 70%);
 }

@@ -1,4 +1,9 @@
-﻿.stats-modal {
+/* ============================================================
+   数据统计弹窗 专属样式
+   ============================================================ */
+
+/* 统计弹窗主体：大尺寸、磨砂质感、极光装饰背景 */
+.stats-modal {
     position: relative;
     width: min(1320px, calc(100vw - 28px));
     max-height: min(92vh, 920px);
@@ -17,6 +22,7 @@
     isolation: isolate;
 }
 
+/* 装饰性极光光晕效果 */
 .stats-aurora {
     position: absolute;
     border-radius: 999px;
@@ -27,46 +33,11 @@
 }
 
 .stats-aurora-one {
-    width: 220px;
-    height: 220px;
-    top: -50px;
-    left: -30px;
+    width: 220px; height: 220px; top: -50px; left: -30px;
     background: radial-gradient(circle, rgba(54, 207, 201, 0.4), transparent 68%);
 }
 
-.stats-aurora-two {
-    width: 260px;
-    height: 260px;
-    top: -70px;
-    right: -30px;
-    background: radial-gradient(circle, rgba(124, 77, 255, 0.34), transparent 68%);
-}
-
-.stats-modal-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.stats-modal-subtitle {
-    margin-top: 6px;
-    color: #888;
-    font-size: 13px;
-    letter-spacing: 0.3px;
-}
-
-.stats-close-btn {
-    width: 36px;
-    height: 36px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(24, 144, 255, 0.08);
-    color: var(--accent-color);
-    cursor: pointer;
-    box-shadow: 0 8px 20px rgba(24, 144, 255, 0.18);
-}
-
+/* 时间范围切换器 (今日/本周/本月) */
 .stats-range-switcher {
     display: inline-flex;
     gap: 8px;
@@ -77,133 +48,22 @@
     backdrop-filter: blur(10px);
 }
 
-.stats-range-btn {
-    min-width: 68px;
-    border: none;
-    border-radius: 999px;
-    padding: 9px 15px;
-    background: transparent;
-    color: #6f6f6f;
-    font-weight: 700;
-    cursor: pointer;
-}
-
 .stats-range-btn.active {
     background: linear-gradient(135deg, rgba(24, 144, 255, 0.92), rgba(54, 207, 201, 0.92));
     color: #fff;
     box-shadow: 0 8px 24px rgba(24, 144, 255, 0.24);
 }
 
-.stats-summary-grid,
-.stats-insight-strip {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-}
-
-.stats-summary-card,
-.stats-panel {
+/* 统计卡片与面板 */
+.stats-summary-card, .stats-panel {
     background: rgba(255, 255, 255, 0.78);
     border: 1px solid rgba(255, 255, 255, 0.35);
     border-radius: 16px;
     padding: 16px;
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-    backdrop-filter: blur(10px);
 }
 
-.stats-summary-card-featured {
-    background:
-        linear-gradient(135deg, rgba(24, 144, 255, 0.16), rgba(54, 207, 201, 0.08)),
-        rgba(255, 255, 255, 0.82);
-    border-color: rgba(24, 144, 255, 0.16);
-}
-
-.stats-summary-label,
-.stats-panel-title {
-    font-size: 13px;
-    color: #7a7a7a;
-    margin-bottom: 6px;
-}
-
-.stats-summary-value {
-    font-size: 24px;
-    color: var(--title-color);
-    font-weight: 700;
-    line-height: 1.3;
-}
-
-.stats-summary-meta {
-    font-size: 12px;
-    color: #909090;
-    margin-top: 4px;
-}
-
-.stats-chip {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 14px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(10px);
-}
-
-.stats-chip-label {
-    color: #7d7d7d;
-    font-size: 12px;
-}
-
-.stats-chip-value {
-    color: var(--title-color);
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.stats-content-grid {
-    display: grid;
-    grid-template-columns: 280px minmax(0, 1.18fr) minmax(0, 1.18fr);
-    gap: 12px;
-    align-items: stretch;
-    min-height: 0;
-}
-
-.stats-panel {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-}
-
-.stats-panel-ranking {
-    min-width: 0;
-    max-width: 280px;
-}
-
-.stats-panel-chart {
-    min-width: 0;
-}
-
-.stats-ranking-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex: 1;
-    min-height: 0;
-    max-height: min(56vh, 560px);
-    overflow-y: auto;
-    padding-right: 4px;
-}
-
-.stats-ranking-list::-webkit-scrollbar {
-    width: 8px;
-}
-
-.stats-ranking-list::-webkit-scrollbar-thumb {
-    border-radius: 999px;
-    background: rgba(24, 144, 255, 0.22);
-}
-
+/* 点击排行榜单项样式 */
 .ranking-item {
     display: grid;
     grid-template-columns: 36px minmax(0, 1fr) auto;
@@ -212,7 +72,6 @@
     padding: 10px 11px;
     border-radius: 12px;
     background: rgba(24, 144, 255, 0.06);
-    border: 1px solid rgba(24, 144, 255, 0.05);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -221,76 +80,7 @@
     box-shadow: 0 10px 24px rgba(24, 144, 255, 0.12);
 }
 
-.ranking-item-top-1 {
-    background: linear-gradient(135deg, rgba(255, 215, 64, 0.22), rgba(255, 255, 255, 0.78));
-}
-
-.ranking-item-top-2 {
-    background: linear-gradient(135deg, rgba(186, 200, 255, 0.22), rgba(255, 255, 255, 0.78));
-}
-
-.ranking-item-top-3 {
-    background: linear-gradient(135deg, rgba(255, 184, 108, 0.22), rgba(255, 255, 255, 0.78));
-}
-
-.ranking-index {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #1890ff, #36cfc9);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-}
-
-.ranking-info,
-.ranking-metrics {
-    min-width: 0;
-}
-
-.ranking-name,
-.ranking-clicks {
-    color: var(--title-color);
-    font-weight: 600;
-}
-
-.ranking-url,
-.ranking-last {
-    font-size: 11px;
-    color: #8b8b8b;
-    margin-top: 3px;
-    word-break: break-all;
-}
-
-.ranking-metrics {
-    text-align: right;
-}
-
-.chart-card {
-    position: relative;
-    width: 100%;
-    min-height: 0;
-    flex: 1;
-    margin: 0 auto 12px;
-    border-radius: 14px;
-    padding-top: 4px;
-}
-
-.trend-chart {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 640 / 240;
-    display: block;
-    overflow: visible;
-}
-
-.chart-grid-line {
-    stroke: rgba(24, 144, 255, 0.12);
-    stroke-width: 1;
-}
-
+/* 图表趋势线样式 */
 .chart-trend-line {
     fill: none;
     stroke-width: 3;
@@ -304,316 +94,11 @@
     stroke-width: 2;
 }
 
-.chart-point-group {
-    cursor: pointer;
-    outline: none;
-}
-
-.chart-point-group:hover .chart-point,
-.chart-point-group:focus .chart-point {
-    stroke-width: 3;
-    transform: scale(1.18);
-    transform-origin: center;
-}
-
-.chart-axis-label {
-    fill: #8b8b8b;
-    font-size: 11px;
-}
-
-.chart-axis-left {
-    text-anchor: end;
-}
-
-.chart-axis-bottom {
-    text-anchor: middle;
-}
-
-.chart-tooltip {
-    position: absolute;
-    min-width: 180px;
-    max-width: min(240px, calc(100% - 24px));
-    padding: 10px 12px;
-    border-radius: 12px;
-    background: rgba(12, 18, 32, 0.9);
-    color: #fff;
-    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.28);
-    transform: translate(-50%, -110%) scale(0.96);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.18s ease, transform 0.18s ease;
-    z-index: 3;
-}
-
-.chart-tooltip.visible {
-    opacity: 1;
-    transform: translate(-50%, -110%) scale(1);
-}
-
-.chart-tooltip-title {
-    font-size: 11px;
-    letter-spacing: 0.3px;
-    color: rgba(255, 255, 255, 0.72);
-    margin-bottom: 4px;
-}
-
-.chart-tooltip-value {
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1.5;
-}
-
-.stats-mini-list {
-    margin-top: auto;
-    padding-top: 12px;
-    border-top: 1px solid rgba(24, 144, 255, 0.08);
-}
-
-.stats-distribution-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 10px;
-    color: #7a7a7a;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.stats-distribution-header-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-
-.stats-distribution-peak {
-    color: #9a9a9a;
-    font-size: 11px;
-    font-weight: 500;
-}
-
-.stats-distribution-tag {
-    padding: 3px 8px;
-    border-radius: 999px;
-    background: rgba(24, 144, 255, 0.08);
-    color: var(--accent-color);
-    font-size: 11px;
-}
-
-.stats-distribution-bars {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 6px;
-    align-items: end;
-}
-
-.stats-distribution-col {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    min-width: 0;
-    border-radius: 10px;
-    padding: 2px;
-    outline: none;
-}
-
-.stats-distribution-col::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% + 10px);
-    transform: translateX(-50%) translateY(4px);
-    min-width: 124px;
-    max-width: 180px;
-    padding: 7px 9px;
-    border-radius: 10px;
-    background: rgba(12, 18, 32, 0.92);
-    color: #fff;
-    font-size: 11px;
-    line-height: 1.4;
-    text-align: center;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.18s ease, transform 0.18s ease;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.24);
-    z-index: 4;
-}
-
-.stats-distribution-col:hover::after,
-.stats-distribution-col:focus::after {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-}
-
-.stats-distribution-value {
-    font-size: 10px;
-    color: #8a8a8a;
-    line-height: 1;
-    white-space: nowrap;
-}
-
-.stats-distribution-bar-wrap {
-    width: 100%;
-    height: 66px;
-    padding-top: 4px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    background: linear-gradient(180deg, rgba(24, 144, 255, 0.02), rgba(24, 144, 255, 0.08));
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.stats-distribution-bar {
-    width: 100%;
-    min-height: 6px;
-    border-radius: 8px;
-    box-shadow: 0 8px 18px rgba(24, 144, 255, 0.16);
-}
-
-.stats-distribution-col.is-current .stats-distribution-bar-wrap {
-    background: linear-gradient(180deg, rgba(24, 144, 255, 0.08), rgba(24, 144, 255, 0.18));
-    box-shadow: inset 0 0 0 1px rgba(24, 144, 255, 0.18);
-}
-
-.stats-distribution-col.is-current .stats-distribution-hour,
-.stats-distribution-col.is-peak .stats-distribution-value {
-    color: var(--accent-color);
-    font-weight: 700;
-}
-
-.stats-distribution-hour {
-    font-size: 10px;
-    color: #8a8a8a;
-    letter-spacing: 0.1px;
-}
-
-.stats-empty {
-    padding: 24px 12px;
-    text-align: center;
-    color: #999;
-}
-
-.stats-empty-compact {
-    padding: 12px 6px 6px;
-    font-size: 12px;
-}
-
-body.dark-mode .stats-summary-card,
-body.dark-mode .stats-panel {
-    background: rgba(36, 36, 36, 0.82);
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
-}
-
-body.dark-mode .stats-modal {
-    background:
-        radial-gradient(circle at top left, rgba(54, 207, 201, 0.12), transparent 28%),
-        radial-gradient(circle at top right, rgba(124, 77, 255, 0.16), transparent 30%),
-        linear-gradient(145deg, rgba(24, 24, 24, 0.95), rgba(36, 36, 36, 0.9));
-    border-color: rgba(255, 255, 255, 0.08);
-}
-
-body.dark-mode .stats-modal-subtitle,
-body.dark-mode .stats-summary-label,
-body.dark-mode .stats-panel-title,
-body.dark-mode .ranking-url,
-body.dark-mode .ranking-last,
-body.dark-mode .stats-summary-meta,
-body.dark-mode .chart-axis-label,
-body.dark-mode .stats-empty,
-body.dark-mode .stats-distribution-header,
-body.dark-mode .stats-distribution-peak,
-body.dark-mode .stats-distribution-hour,
-body.dark-mode .stats-distribution-value {
-    color: #a9a9a9;
-}
-
-body.dark-mode .ranking-item {
-    background: rgba(24, 144, 255, 0.12);
-}
-
-body.dark-mode .ranking-item-top-1 {
-    background: linear-gradient(135deg, rgba(255, 215, 64, 0.18), rgba(24, 24, 24, 0.8));
-}
-
-body.dark-mode .ranking-item-top-2 {
-    background: linear-gradient(135deg, rgba(186, 200, 255, 0.16), rgba(24, 24, 24, 0.8));
-}
-
-body.dark-mode .ranking-item-top-3 {
-    background: linear-gradient(135deg, rgba(255, 184, 108, 0.16), rgba(24, 24, 24, 0.8));
-}
-
-body.dark-mode .stats-chip {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.08);
-}
-
-body.dark-mode .stats-range-switcher {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.08);
-}
-
-body.dark-mode .stats-range-btn {
-    color: #c6c6c6;
-}
-
-body.dark-mode .stats-close-btn {
-    background: rgba(24, 144, 255, 0.18);
-}
-
-body.dark-mode .stats-distribution-bar-wrap {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(24, 144, 255, 0.12));
-}
-
-body.dark-mode .stats-distribution-col::after {
-    background: rgba(4, 8, 18, 0.94);
-}
-
-body.dark-mode .stats-distribution-col.is-current .stats-distribution-bar-wrap {
-    background: linear-gradient(180deg, rgba(24, 144, 255, 0.16), rgba(24, 144, 255, 0.2));
-    box-shadow: inset 0 0 0 1px rgba(105, 192, 255, 0.22);
-}
-
-body.dark-mode .stats-distribution-tag {
-    background: rgba(24, 144, 255, 0.16);
-}
-
+/* 响应式适配：在窄屏下改为单列滚动显示 */
 @media (max-width: 900px) {
     .stats-modal {
         width: min(1080px, calc(100vw - 24px));
-        max-height: min(90vh, 900px);
-        overflow-y: auto;
         display: block;
-    }
-
-    .stats-summary-grid,
-    .stats-insight-strip,
-    .stats-content-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .stats-panel-ranking {
-        max-width: none;
-    }
-
-    .stats-ranking-list {
-        max-height: none;
-    }
-
-    .stats-chip {
-        border-radius: 18px;
-    }
-
-    .trend-chart {
-        aspect-ratio: 640 / 240;
-    }
-
-    .stats-distribution-bars {
-        grid-template-columns: repeat(8, minmax(0, 1fr));
+        overflow-y: auto;
     }
 }
