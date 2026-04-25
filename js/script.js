@@ -20,13 +20,40 @@ function applyStoredPreferences() {
 }
 
 function hydrateContent() {
-    const savedAudioText = AppStorage.getCustomAudioText();
-    if (savedAudioText) {
-        document.getElementById('audioText').innerHTML = sanitizeHTML(savedAudioText);
-    }
+    updateDailyHitokoto();
 
     const savedTitle = AppStorage.getCustomArtText();
     document.getElementById('artText').innerText = savedTitle || defaultTitle;
+}
+
+async function updateDailyHitokoto() {
+    const textEl = document.getElementById('audioText');
+    const today = new Date().toDateString();
+    const cached = AppStorage.getJSON('shadow_daily_hitokoto', null);
+
+    // 如果日期相同且有缓存，直接使用缓存
+    if (cached && cached.date === today) {
+        textEl.innerHTML = cached.text;
+        return;
+    }
+
+    // 否则请求 API
+    try {
+        const response = await fetch('https://v1.hitokoto.cn/?c=i&c=d&c=h&c=j');
+        const data = await response.json();
+        const newText = data.hitokoto;
+        
+        // 渲染并保存
+        textEl.innerHTML = newText;
+        AppStorage.setJSON('shadow_daily_hitokoto', {
+            date: today,
+            text: newText
+        });
+    } catch (err) {
+        console.error('获取一言失败:', err);
+        // 失败时如果本地有缓存则用缓存，否则用默认值
+        textEl.innerHTML = cached ? cached.text : '纵容的 喜欢的 讨厌的 宠溺的 厌倦的<br>一个个慢慢暗淡';
+    }
 }
 
 function startRuntimeServices() {
@@ -216,7 +243,7 @@ function bindEventListeners() {
     });
 
     document.getElementById('audioText').addEventListener('click', function() {
-        editSubtitle();
+        updateDailyHitokoto();
     });
 
     document.getElementById('importBtn').addEventListener('click', function() {
