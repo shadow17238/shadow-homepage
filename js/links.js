@@ -1,3 +1,6 @@
+﻿// 閾炬帴鍗＄墖閫昏緫
+let currentRightClickedLink = null;
+
 function isLinkEnabled(url) {
     return Boolean(url && url.trim() && url !== '#');
 }
@@ -15,58 +18,120 @@ function openLinkTarget(url) {
     window.open(url, '_blank', 'noopener,noreferrer');
 }
 
+// 鍙抽敭鑿滃崟閫昏緫
+function initContextMenu() {
+    const menu = document.createElement('div');
+    menu.className = 'context-menu';
+    menu.id = 'customContextMenu';
+    menu.innerHTML = `
+        <div class="context-menu-item" id="ctxCopyLink">
+            <i class="fa-solid fa-copy"></i> 澶嶅埗閾炬帴
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" id="ctxEditItem">
+            <i class="fa-solid fa-pen-to-square"></i> 缂栬緫姝ら」
+        </div>
+    `;
+    document.body.appendChild(menu);
+
+    // 缁戝畾鍏ㄥ眬鐐瑰嚮鍏抽棴鑿滃崟
+    document.addEventListener('click', () => {
+        menu.style.display = 'none';
+    });
+
+    // 闃绘鑿滃崟鍐呯殑鐐瑰嚮绌块€?
+    menu.onclick = (e) => e.stopPropagation();
+
+    document.getElementById('ctxCopyLink').onclick = () => {
+        if (currentRightClickedLink) {
+            navigator.clipboard.writeText(currentRightClickedLink.url).then(() => {
+                console.log('[Context Menu] Link copied');
+            });
+            menu.style.display = 'none';
+        }
+    };
+
+    document.getElementById('ctxEditItem').onclick = () => {
+        if (currentRightClickedLink) {
+            const { catIndex, linkIndex } = currentRightClickedLink;
+            openEditModal(catIndex, linkIndex);
+            menu.style.display = 'none';
+        }
+    };
+}
+
+function handleLinkContextMenu(e, catIndex, linkIndex) {
+    const enabled = isLinkEnabled(appData[catIndex].links[linkIndex].url);
+    if (!enabled && !isEditMode) return;
+
+    e.preventDefault();
+    const menu = document.getElementById('customContextMenu');
+    const link = appData[catIndex].links[linkIndex];
+
+    currentRightClickedLink = { ...link, catIndex, linkIndex };
+
+    menu.style.display = 'flex';
+
+    // 闃叉鑿滃崟瓒呭嚭杈圭晫
+    let x = e.clientX;
+    let y = e.clientY;
+    const menuWidth = 160;
+    const menuHeight = 150;
+
+    if (x + menuWidth > window.innerWidth) x -= menuWidth;
+    if (y + menuHeight > window.innerHeight) y -= menuHeight;
+
+    menu.style.left = `${x}px`;
+    menu.style.top = `${y}px`;
+}
+
 function renderLinks() {
     const container = document.getElementById('linkContainer');
+    if (!container) return;
     container.innerHTML = '';
 
     if (!appData || appData.length === 0) {
         const emptyDiv = document.createElement('div');
         emptyDiv.className = 'empty-state';
-        emptyDiv.textContent = '\u6682\u65e0\u94fe\u63a5\u6570\u636e\uff0c\u70b9\u51fb\u53f3\u4e0a\u89d2\u9f7f\u8f6e\u56fe\u6807\u8fdb\u5165\u7f16\u8f91\u6a21\u5f0f\u6dfb\u52a0\u3002';
+        emptyDiv.textContent = '鏆傛棤閾炬帴鏁版嵁锛岀偣鍑诲彸涓婅榻胯疆鍥炬爣杩涘叆缂栬緫妯″紡娣诲姞銆?;
         container.appendChild(emptyDiv);
         return;
     }
 
     appData.forEach((cat, catIndex) => {
         const groupDiv = document.createElement('div');
-        groupDiv.className = 'category-group';
+        // 鍔犲叆鍏ュ満鍔ㄧ敾寤惰繜
+        groupDiv.className = 'category-group animate-in-bottom';
+        groupDiv.style.setProperty('--delay', `${0.3 + catIndex * 0.05}s`);
 
         const title = document.createElement('div');
         title.className = 'category-title';
-        title.innerText = cat.category;
+        title.innerText = cat.category.toUpperCase();
         groupDiv.appendChild(title);
 
         const linksWrapper = document.createElement('div');
         linksWrapper.className = 'links-wrapper';
 
         cat.links.forEach((link, linkIndex) => {
-            const a = document.createElement('a');
+            const a = document.createElement('div'); // 鏀逛负 div 浠ヤ究缁熶竴澶勭悊鐐瑰嚮
             const enabled = isLinkEnabled(link.url);
-            const isCustomProtocol = enabled && isCustomProtocolLink(link.url);
+
             a.className = enabled ? 'link-card' : 'link-card link-card-disabled';
-            a.title = enabled ? link.url : '\u94fe\u63a5\u672a\u8bbe\u7f6e';
-            a.href = enabled ? link.url : '#';
-            a.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+            a.textContent = link.name || (isEditMode ? '鏈缃? : '');
 
-            if (enabled && !isCustomProtocol) {
-                a.target = '_blank';
-                a.rel = 'noopener noreferrer';
-            }
-
-            a.addEventListener('click', function (e) {
+            // 缁戝畾宸﹂敭鐐瑰嚮
+            a.onclick = (e) => {
                 if (isEditMode) {
-                    e.preventDefault();
                     openEditModal(catIndex, linkIndex);
-                } else if (!enabled) {
-                    e.preventDefault();
-                } else {
-                    e.preventDefault();
+                } else if (enabled) {
                     incrementClickCount(link);
                     openLinkTarget(link.url);
                 }
-            });
+            };
 
-            a.innerText = link.name;
+            // 缁戝畾鍙抽敭鐐瑰嚮
+            a.oncontextmenu = (e) => handleLinkContextMenu(e, catIndex, linkIndex);
+
             linksWrapper.appendChild(a);
         });
 
@@ -97,22 +162,10 @@ function editTitle() {
     if (!isEditMode) return;
 
     editType = 'title';
-    document.getElementById('modalTitle').innerText = '\u4fee\u6539\u9996\u9875\u5bc4\u8bed';
-    setEditModalSubtitle('\u66f4\u65b0\u9876\u90e8\u5bc4\u8bed\u6587\u6848\uff0c\u8ba9\u9996\u9875\u6c14\u8d28\u66f4\u8d34\u8fd1\u4f60\u7684\u611f\u89c9\u3002');
-    document.getElementById('labelName').innerText = '\u5bc4\u8bed\u5185\u5bb9';
+    document.getElementById('modalTitle').innerText = '淇敼棣栭〉瀵勮';
+    setEditModalSubtitle('鏇存柊椤堕儴瀵勮鏂囨锛岃棣栭〉姘旇川鏇磋创杩戜綘鐨勬劅瑙夈€?);
+    document.getElementById('labelName').innerText = '瀵勮鍐呭';
     document.getElementById('editName').value = document.getElementById('artText').innerText;
-    document.getElementById('groupUrl').style.display = 'none';
-    document.getElementById('editModal').style.display = 'flex';
-}
-
-function editSubtitle() {
-    if (!isEditMode) return;
-
-    editType = 'subtitle';
-    document.getElementById('modalTitle').innerText = '\u4fee\u6539\u5f8b\u52a8\u5bc4\u8bed';
-    setEditModalSubtitle('\u8c03\u6574\u97f3\u5f8b\u533a\u57df\u7684\u5c55\u793a\u6587\u6848\uff0c\u652f\u6301\u7b80\u5355 HTML \u6362\u884c\u3002');
-    document.getElementById('labelName').innerText = '\u5185\u5bb9\uff08\u652f\u6301 HTML \u6807\u7b7e\uff0c\u5982 br\uff09';
-    document.getElementById('editName').value = document.getElementById('audioText').innerHTML;
     document.getElementById('groupUrl').style.display = 'none';
     document.getElementById('editModal').style.display = 'flex';
 }
@@ -122,12 +175,12 @@ function openEditModal(catIndex, linkIndex) {
     currentEditIndices = { catIndex, linkIndex };
     const item = appData[catIndex].links[linkIndex];
 
-    document.getElementById('modalTitle').innerText = '\u81ea\u5b9a\u4e49\u94fe\u63a5';
-    setEditModalSubtitle('\u4fee\u6539\u5361\u7247\u540d\u79f0\u4e0e\u8df3\u8f6c\u76ee\u6807\uff0c\u7f51\u5740\u4e0e\u5e94\u7528\u534f\u8bae\u90fd\u53ef\u4ee5\u4f7f\u7528\u3002');
-    document.getElementById('labelName').innerText = '\u663e\u793a\u540d\u79f0';
+    document.getElementById('modalTitle').innerText = '鑷畾涔夐摼鎺?;
+    setEditModalSubtitle('淇敼鍗＄墖鍚嶇О涓庤烦杞洰鏍囷紝缃戝潃涓庡簲鐢ㄥ崗璁兘鍙互浣跨敤銆?);
+    document.getElementById('labelName').innerText = '鏄剧ず鍚嶇О';
     document.getElementById('editName').value = item.name;
     document.getElementById('editUrl').value = item.url;
-    document.querySelector('#groupUrl label').innerText = '\u7f51\u5740 URL / \u5e94\u7528\u534f\u8bae';
+    document.querySelector('#groupUrl label').innerText = '缃戝潃 URL / 搴旂敤鍗忚';
     document.getElementById('groupUrl').style.display = 'block';
     document.getElementById('editModal').style.display = 'flex';
 }
@@ -137,16 +190,13 @@ function saveData() {
     const newUrl = document.getElementById('editUrl').value;
 
     if (!newName) {
-        alert('\u540d\u79f0\u4e0d\u80fd\u4e3a\u7a7a');
+        alert('鍚嶇О涓嶈兘涓虹┖');
         return;
     }
 
     if (editType === 'title') {
         document.getElementById('artText').innerText = newName;
         AppStorage.setCustomArtText(newName);
-    } else if (editType === 'subtitle') {
-        document.getElementById('audioText').innerHTML = sanitizeHTML(newName);
-        AppStorage.setCustomAudioText(newName);
     } else {
         const { catIndex, linkIndex } = currentEditIndices;
         appData[catIndex].links[linkIndex].name = newName;
@@ -162,15 +212,7 @@ function updateClock() {
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-GB', { hour12: false });
     const dateStr = now.toLocaleDateString('zh-CN');
-    const weekArr = [
-        '\u5468\u65e5',
-        '\u5468\u4e00',
-        '\u5468\u4e8c',
-        '\u5468\u4e09',
-        '\u5468\u56db',
-        '\u5468\u4e94',
-        '\u5468\u516d'
-    ];
+    const weekArr = ['鍛ㄦ棩', '鍛ㄤ竴', '鍛ㄤ簩', '鍛ㄤ笁', '鍛ㄥ洓', '鍛ㄤ簲', '鍛ㄥ叚'];
     const weekStr = weekArr[now.getDay()];
 
     document.getElementById('clockTime').innerText = timeStr;
@@ -179,6 +221,8 @@ function updateClock() {
 
 function initClockDrag() {
     const clockBox = document.getElementById('clock-box');
+    if (!clockBox) return;
+
     let isDragging = false;
     let hasMovedDuringDrag = false;
     let dragStartX = 0;
@@ -223,17 +267,18 @@ function initClockDrag() {
     });
 
     const savedPos = AppStorage.getClockPosition();
-    if (savedPos) {
-        const pos = savedPos;
-        if (pos && pos.left && pos.top) {
-            clockBox.style.left = pos.left;
-            clockBox.style.top = pos.top;
-        } else {
-            clockBox.style.left = defaultClockPosition.left;
-            clockBox.style.top = defaultClockPosition.top;
-        }
+    if (savedPos && savedPos.left && savedPos.top) {
+        clockBox.style.left = savedPos.left;
+        clockBox.style.top = savedPos.top;
     } else {
         clockBox.style.left = defaultClockPosition.left;
         clockBox.style.top = defaultClockPosition.top;
     }
+}
+
+// 鍒濆鍖?
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initContextMenu);
+} else {
+    initContextMenu();
 }

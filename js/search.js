@@ -1,10 +1,47 @@
-﻿let isSearchHistoryListenerBound = false;
+let isSearchHistoryListenerBound = false;
+let isSearchHistoryPositionListenerBound = false;
+let isSearchHistoryMountedToBody = false;
+
+function ensureSearchHistoryMounted() {
+    const historyContainer = document.getElementById('searchHistoryContainer');
+    if (!historyContainer || isSearchHistoryMountedToBody) {
+        return historyContainer;
+    }
+
+    document.body.appendChild(historyContainer);
+    historyContainer.addEventListener('click', (event) => {
+        event.stopPropagation();
+    });
+    isSearchHistoryMountedToBody = true;
+    return historyContainer;
+}
+
+function updateSearchHistoryPosition() {
+    const historyContainer = ensureSearchHistoryMounted();
+    const searchBox = document.querySelector('.search-box');
+    if (!historyContainer || !searchBox || historyContainer.style.display === 'none') {
+        return;
+    }
+
+    const rect = searchBox.getBoundingClientRect();
+    const viewportPadding = 12;
+    const width = Math.min(rect.width, window.innerWidth - viewportPadding * 2);
+    const left = Math.min(
+        Math.max(rect.left, viewportPadding),
+        window.innerWidth - width - viewportPadding
+    );
+
+    historyContainer.style.top = `${rect.bottom + 12}px`;
+    historyContainer.style.left = `${left}px`;
+    historyContainer.style.width = `${width}px`;
+}
 
 function doSearch() {
     const query = document.getElementById('searchInput').value.trim();
     if (!query) return;
 
     addToSearchHistory(query);
+    // 固定回退到最初的 Bing 搜索
     window.open(`https://www.bing.com/search?q=${encodeURIComponent(query)}`, '_blank');
 }
 
@@ -64,7 +101,7 @@ function isSearchHistoryMatch(item, normalizedQuery) {
 }
 
 function showSearchHistory() {
-    const historyContainer = document.getElementById('searchHistoryContainer');
+    const historyContainer = ensureSearchHistoryMounted();
     const searchInput = document.getElementById('searchInput');
     if (!historyContainer) return;
 
@@ -75,6 +112,7 @@ function showSearchHistory() {
 
     const sortedHistory = getSortedSearchHistory(searchInput ? searchInput.value : '');
     historyContainer.style.display = 'block';
+    updateSearchHistoryPosition();
 
     const historyList = document.createElement('div');
     historyList.className = 'history-list';
@@ -125,11 +163,19 @@ function showSearchHistory() {
     historyContainer.appendChild(headerDiv);
     historyContainer.appendChild(historyList);
 
+    updateSearchHistoryPosition();
+
     if (!isSearchHistoryListenerBound) {
         isSearchHistoryListenerBound = true;
         setTimeout(() => {
             document.addEventListener('click', closeSearchHistory);
         }, 100);
+    }
+
+    if (!isSearchHistoryPositionListenerBound) {
+        isSearchHistoryPositionListenerBound = true;
+        window.addEventListener('resize', updateSearchHistoryPosition);
+        window.addEventListener('scroll', updateSearchHistoryPosition, true);
     }
 }
 
@@ -142,7 +188,7 @@ function clearSearchHistory() {
 }
 
 function closeSearchHistory(e) {
-    const historyContainer = document.getElementById('searchHistoryContainer');
+    const historyContainer = ensureSearchHistoryMounted();
     const searchInput = document.getElementById('searchInput');
 
     if (historyContainer && !historyContainer.contains(e.target) && e.target !== searchInput) {
@@ -154,7 +200,7 @@ function closeSearchHistory(e) {
 
 function selectHistoryItem(item) {
     document.getElementById('searchInput').value = item;
-    const historyContainer = document.getElementById('searchHistoryContainer');
+    const historyContainer = ensureSearchHistoryMounted();
     if (historyContainer) {
         historyContainer.style.display = 'none';
         document.removeEventListener('click', closeSearchHistory);
@@ -172,4 +218,3 @@ function removeHistoryItem(index) {
         isSearchHistoryListenerBound = false;
     }
 }
-

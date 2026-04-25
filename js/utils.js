@@ -116,3 +116,22 @@ function isFontAwesomeAvailable() {
     probe.remove();
     return /Font Awesome/i.test(fontFamily);
 }
+
+function loadScript(url) {
+    return new Promise((resolve, reject) => {
+        const scripts = document.getElementsByTagName('script');
+        for (let i = 0; i < scripts.length; i++) {
+            if (scripts[i].src.includes(url)) {
+                resolve();
+                return;
+            }
+        }
+
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = url;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.body.appendChild(script);
+    });
+}

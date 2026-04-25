@@ -261,12 +261,32 @@ function renderTrendChart(svg, values, labels, unit, startColor, endColor, optio
         return { x, y, value, label: labels[index] };
     });
 
-    const polyline = points.map((point) => `${point.x},${point.y}`).join(' ');
-    const areaPoints = [
-        `${points[0] ? points[0].x : padding.left},${padding.top + innerHeight}`,
-        ...points.map((point) => `${point.x},${point.y}`),
-        `${points[points.length - 1] ? points[points.length - 1].x : padding.left + innerWidth},${padding.top + innerHeight}`
-    ].join(' ');
+    // 生成平滑曲线路径的辅助函数 (贝塞尔曲线)
+    const getSmoothPath = (pts) => {
+        if (pts.length < 2) return pts.length === 1 ? `M ${pts[0].x},${pts[0].y}` : "";
+        let path = `M ${pts[0].x},${pts[0].y}`;
+        const smoothing = 0.15; // 平滑系数
+
+        for (let i = 0; i < pts.length - 1; i++) {
+            const p0 = pts[i === 0 ? i : i - 1];
+            const p1 = pts[i];
+            const p2 = pts[i + 1];
+            const p3 = pts[i + 2 >= pts.length ? pts.length - 1 : i + 2];
+
+            const cp1x = p1.x + (p2.x - p0.x) * smoothing;
+            const cp1y = p1.y + (p2.y - p0.y) * smoothing;
+            const cp2x = p2.x - (p3.x - p1.x) * smoothing;
+            const cp2y = p2.y - (p3.y - p1.y) * smoothing;
+
+            path += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+        }
+        return path;
+    };
+
+    const smoothLinePath = getSmoothPath(points);
+    const baselineY = padding.top + innerHeight;
+    const areaPath = points.length > 0 ?
+        `${smoothLinePath} L ${points[points.length-1].x},${baselineY} L ${points[0].x},${baselineY} Z` : "";
 
     const grid = Array.from({ length: 4 }, (_, index) => {
         const ratio = index / 3;
@@ -313,8 +333,8 @@ function renderTrendChart(svg, values, labels, unit, startColor, endColor, optio
             </filter>
         </defs>
         ${grid}
-        <polygon points="${areaPoints}" fill="url(#${svg.id}-area)"></polygon>
-        <polyline points="${polyline}" class="chart-trend-line" stroke="url(#${svg.id}-gradient)" filter="url(#${svg.id}-glow)"></polyline>
+        <path d="${areaPath}" fill="url(#${svg.id}-area)"></path>
+        <path d="${smoothLinePath}" class="chart-trend-line" stroke="url(#${svg.id}-gradient)" fill="none" filter="url(#${svg.id}-glow)"></path>
         ${circles}
         ${xLabels}
     `;

@@ -1,4 +1,4 @@
-const MAX_HISTORY_ITEMS = 10;
+const MAX_HISTORY_ITEMS = 100;
 let editModalPointerDownOnOverlay = false;
 let statsModalPointerDownOnOverlay = false;
 
@@ -108,13 +108,25 @@ function bindEventListeners() {
         }
     });
 
-    document.getElementById('statsBtn').addEventListener('click', function() {
+    document.getElementById('statsBtn').addEventListener('click', async function() {
+        if (typeof openStatsModal === 'undefined') {
+            const btn = this;
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            try {
+                await loadScript('js/stats-ui.js');
+            } finally {
+                btn.innerHTML = originalIcon;
+            }
+        }
         openStatsModal();
     });
 
     document.querySelectorAll('#statsRangeSwitcher .stats-range-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
-            setStatsRange(this.getAttribute('data-range'));
+            if (typeof setStatsRange !== 'undefined') {
+                setStatsRange(this.getAttribute('data-range'));
+            }
         });
     });
 
@@ -130,6 +142,16 @@ function bindEventListeners() {
 
     document.getElementById('audioVisualBtn').addEventListener('click', async function() {
         const btn = this;
+
+        if (typeof drawVisualizer === 'undefined') {
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            try {
+                await loadScript('js/media.js');
+            } finally {
+                btn.innerHTML = originalIcon;
+            }
+        }
 
         if (!isVisualizerOn) {
             try {
@@ -167,8 +189,18 @@ function bindEventListeners() {
     });
 
     document.getElementById('cameraBtn').addEventListener('click', async function() {
-        const videoEl = document.getElementById('camera-feed');
+        const btn = this;
+        if (typeof closeCamera === 'undefined') {
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            try {
+                await loadScript('js/media.js');
+            } finally {
+                btn.innerHTML = originalIcon;
+            }
+        }
 
+        const videoEl = document.getElementById('camera-feed');
         if (cameraStream) {
             closeCamera();
             return;
@@ -185,7 +217,7 @@ function bindEventListeners() {
             cameraWin.style.top = '';
             cameraWin.style.right = '';
             cameraWin.style.bottom = '';
-            this.classList.add('active');
+            btn.classList.add('active');
         } catch (err) {
             console.error(err);
             alert('\u65e0\u6cd5\u8bbf\u95ee\u6444\u50cf\u5934\u6216\u9ea6\u514b\u98ce\uff1a' + err.message);
