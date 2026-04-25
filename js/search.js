@@ -151,11 +151,11 @@ function showSearchHistory() {
 
     const titleSpan = document.createElement('span');
     titleSpan.className = 'history-title';
-    titleSpan.textContent = '搜索历史';
+    titleSpan.textContent = '\u641c\u7d22\u5386\u53f2';
 
     const clearBtn = document.createElement('button');
     clearBtn.className = 'clear-history';
-    clearBtn.textContent = '清空';
+    clearBtn.textContent = '\u6e05\u7a7a';
     clearBtn.addEventListener('click', function () { clearSearchHistory(); });
 
     headerDiv.appendChild(titleSpan);
@@ -180,7 +180,7 @@ function showSearchHistory() {
 }
 
 function clearSearchHistory() {
-    if (!confirm('确定要清空所有搜索历史吗？')) return;
+    if (!confirm('\u786e\u5b9a\u8981\u6e05\u7a7a\u6240\u6709\u641c\u7d22\u5386\u53f2\u5417\uff1f')) return;
 
     searchHistory = [];
     AppState.persistSearchHistory();

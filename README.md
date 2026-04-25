@@ -53,11 +53,13 @@ shadow's homepage/
 |   |-- avatar_1.png
 |   `-- favicon.ico
 |-- js/
+|   |-- api-cards.js
 |   |-- app-state.js
 |   |-- background.js
 |   |-- backup.js
 |   |-- countdown.js
 |   |-- links.js
+|   |-- main.js
 |   |-- media.js
 |   |-- script.js
 |   |-- search.js
@@ -83,6 +85,8 @@ shadow's homepage/
 - [css/stats.css](/F:/shadow's%20homepage/css/stats.css:1)：统计面板和图表相关样式。
 - [css/weather.css](/F:/shadow's%20homepage/css/weather.css:1)：天气挂件、详情面板和设置弹窗样式。
 - [data/data.js](/F:/shadow's%20homepage/data/data.js:1)：默认链接、默认倒数日、默认标题与时钟位置。
+- [js/main.js](/F:/shadow's%20homepage/js/main.js:1)：主入口文件。
+- [js/api-cards.js](/F:/shadow's%20homepage/js/api-cards.js:1)：API 卡片渲染与逻辑。
 - [js/app-state.js](/F:/shadow's%20homepage/js/app-state.js:1)：全局运行状态与持久化入口。
 - [js/script.js](/F:/shadow's%20homepage/js/script.js:1)：应用启动流程、全局事件绑定和基础运行逻辑。
 - [js/links.js](/F:/shadow's%20homepage/js/links.js:1)：导航渲染、编辑模式、应用协议跳转与时钟拖拽处理。

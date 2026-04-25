@@ -1,11 +1,10 @@
-
 const HITOKOTO_API = 'https://international.v1.hitokoto.cn/';
 const NASA_APOD_API = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&thumbs=true';
 const HITOKOTO_CACHE_KEY = 'shadow_hitokoto_cache';
 const APOD_CACHE_KEY = 'shadow_apod_cache';
 const HITOKOTO_CACHE_TTL = 30 * 60 * 1000;
 const APOD_CACHE_TTL = 12 * 60 * 60 * 1000;
-const HITOKOTO_FALLBACK = '纵容�?喜欢�?讨厌�?宠溺�?厌倦的<br>一个个慢慢暗淡';
+const HITOKOTO_FALLBACK = '\u7eb5\u5bb9\u7684 \u559c\u6b22\u7684 \u8ba8\u538c\u7684 \u5ba0\u6eba\u7684 \u538c\u5026\u7684<br>\u4e00\u4e2a\u4e2a\u6162\u6162\u6697\u6de1';
 
 function isFresh(data, ttl) {
     return Boolean(data && data.updatedAt && (Date.now() - data.updatedAt) < ttl);
@@ -33,7 +32,8 @@ function renderHitokoto(data) {
         audioText.title = '';
         return;
     }
-    const from = data.from ? `—�?${data.from}` : '—�?一言';
+
+    const from = data.from ? `\u2014 ${data.from}` : '\u2014 \u4e00\u8a00';
     audioText.innerHTML = `${escapeHtml(data.hitokoto)}<br><span class="audio-text-source">${escapeHtml(from)}</span>`;
     audioText.title = data.from_who ? `${data.from} / ${data.from_who}` : from;
 }
@@ -48,7 +48,7 @@ function formatApodDate(dateString) {
 function truncate(value, length) {
     if (!value) return '';
     if (value.length <= length) return value;
-    return `${value.slice(0, length - 1)}…`;
+    return `${value.slice(0, length - 1)}\u2026`;
 }
 
 function renderApod(data) {
@@ -59,8 +59,8 @@ function renderApod(data) {
     if (!card || !title || !desc || !date) return;
 
     if (!data) {
-        title.textContent = '今日天文�?;
-        desc.textContent = '暂时无法获取 NASA APOD';
+        title.textContent = '\u4eca\u65e5\u5929\u6587\u56fe';
+        desc.textContent = '\u6682\u65f6\u65e0\u6cd5\u83b7\u53d6 NASA APOD';
         date.textContent = 'NASA APOD';
         card.style.removeProperty('--apod-image');
         card.classList.add('is-fallback');
@@ -68,14 +68,16 @@ function renderApod(data) {
         return;
     }
 
-    title.textContent = truncate(data.title || '今日天文�?, 48);
-    desc.textContent = truncate(data.explanation || '点击查看 NASA 今日天文图�?, 88);
+    title.textContent = truncate(data.title || '\u4eca\u65e5\u5929\u6587\u56fe', 48);
+    desc.textContent = truncate(data.explanation || '\u70b9\u51fb\u67e5\u770b NASA \u4eca\u65e5\u5929\u6587\u56fe\u3002', 88);
     date.textContent = formatApodDate(data.date);
     card.href = data.url || data.hdurl || 'https://apod.nasa.gov/apod/';
     card.classList.remove('is-fallback');
+
     const imageUrl = data.media_type === 'image' ? (data.url || data.hdurl) : (data.thumbnail_url || '');
-    if (imageUrl) card.style.setProperty('--apod-image', `url("${imageUrl}")`);
-    else {
+    if (imageUrl) {
+        card.style.setProperty('--apod-image', `url("${imageUrl}")`);
+    } else {
         card.style.removeProperty('--apod-image');
         card.classList.add('is-fallback');
     }
@@ -88,6 +90,7 @@ const ApiCards = {
             renderHitokoto(cached);
             return;
         }
+
         try {
             const response = await fetch(HITOKOTO_API, { cache: 'no-store' });
             if (!response.ok) throw new Error(`Hitokoto ${response.status}`);
@@ -107,11 +110,20 @@ const ApiCards = {
             renderApod(cached);
             return;
         }
+
         try {
             const response = await fetch(NASA_APOD_API, { cache: 'no-store' });
             if (!response.ok) throw new Error(`NASA APOD ${response.status}`);
             const payload = await response.json();
-            const data = { title: payload.title, explanation: payload.explanation, date: payload.date, url: payload.url, hdurl: payload.hdurl, media_type: payload.media_type, thumbnail_url: payload.thumbnail_url };
+            const data = {
+                title: payload.title,
+                explanation: payload.explanation,
+                date: payload.date,
+                url: payload.url,
+                hdurl: payload.hdurl,
+                media_type: payload.media_type,
+                thumbnail_url: payload.thumbnail_url
+            };
             setCache(APOD_CACHE_KEY, data);
             renderApod(data);
         } catch (error) {
@@ -125,6 +137,11 @@ const ApiCards = {
         this.loadApod();
     },
 
-    refreshHitokoto() { this.loadHitokoto(true); },
-    refreshApod() { this.loadApod(); }
+    refreshHitokoto() {
+        this.loadHitokoto(true);
+    },
+
+    refreshApod() {
+        this.loadApod();
+    }
 };

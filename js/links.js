@@ -25,11 +25,11 @@ function initContextMenu() {
     menu.id = 'customContextMenu';
     menu.innerHTML = `
         <div class="context-menu-item" id="ctxCopyLink">
-            <i class="fa-solid fa-copy"></i> 澶嶅埗閾炬帴
+            <i class="fa-solid fa-copy"></i> \u590d\u5236\u94fe\u63a5
         </div>
         <div class="context-menu-divider"></div>
         <div class="context-menu-item" id="ctxEditItem">
-            <i class="fa-solid fa-pen-to-square"></i> 缂栬緫姝ら」
+            <i class="fa-solid fa-pen-to-square"></i> \u7f16\u8f91\u6b64\u9879
         </div>
     `;
     document.body.appendChild(menu);
@@ -93,7 +93,7 @@ function renderLinks() {
     if (!appData || appData.length === 0) {
         const emptyDiv = document.createElement('div');
         emptyDiv.className = 'empty-state';
-        emptyDiv.textContent = '鏆傛棤閾炬帴鏁版嵁锛岀偣鍑诲彸涓婅榻胯疆鍥炬爣杩涘叆缂栬緫妯″紡娣诲姞銆?;
+        emptyDiv.textContent = '\u6682\u65e0\u94fe\u63a5\u6570\u636e\uff0c\u70b9\u51fb\u53f3\u4e0a\u89d2\u9f7f\u8f6e\u56fe\u6807\u8fdb\u5165\u7f16\u8f91\u6a21\u5f0f\u6dfb\u52a0\u3002';
         container.appendChild(emptyDiv);
         return;
     }
@@ -117,7 +117,7 @@ function renderLinks() {
             const enabled = isLinkEnabled(link.url);
 
             a.className = enabled ? 'link-card' : 'link-card link-card-disabled';
-            a.textContent = link.name || (isEditMode ? '鏈缃? : '');
+            a.textContent = link.name || (isEditMode ? '\u672a\u8bbe\u7f6e' : '');
 
             // 缁戝畾宸﹂敭鐐瑰嚮
             a.onclick = (e) => {
@@ -162,9 +162,9 @@ function editTitle() {
     if (!isEditMode) return;
 
     editType = 'title';
-    document.getElementById('modalTitle').innerText = '淇敼棣栭〉瀵勮';
-    setEditModalSubtitle('鏇存柊椤堕儴瀵勮鏂囨锛岃棣栭〉姘旇川鏇磋创杩戜綘鐨勬劅瑙夈€?);
-    document.getElementById('labelName').innerText = '瀵勮鍐呭';
+    document.getElementById('modalTitle').innerText = '\u4fee\u6539\u9996\u9875\u5bc4\u8bed';
+    setEditModalSubtitle('\u66f4\u65b0\u9876\u90e8\u5bc4\u8bed\u6587\u6848\uff0c\u8ba9\u9996\u9875\u6c14\u8d28\u66f4\u8d34\u8fd1\u4f60\u7684\u611f\u89c9\u3002');
+    document.getElementById('labelName').innerText = '\u5bc4\u8bed\u5185\u5bb9';
     document.getElementById('editName').value = document.getElementById('artText').innerText;
     document.getElementById('groupUrl').style.display = 'none';
     document.getElementById('editModal').style.display = 'flex';
@@ -175,12 +175,12 @@ function openEditModal(catIndex, linkIndex) {
     currentEditIndices = { catIndex, linkIndex };
     const item = appData[catIndex].links[linkIndex];
 
-    document.getElementById('modalTitle').innerText = '鑷畾涔夐摼鎺?;
-    setEditModalSubtitle('淇敼鍗＄墖鍚嶇О涓庤烦杞洰鏍囷紝缃戝潃涓庡簲鐢ㄥ崗璁兘鍙互浣跨敤銆?);
-    document.getElementById('labelName').innerText = '鏄剧ず鍚嶇О';
+    document.getElementById('modalTitle').innerText = '\u81ea\u5b9a\u4e49\u94fe\u63a5';
+    setEditModalSubtitle('\u4fee\u6539\u5361\u7247\u540d\u79f0\u4e0e\u8df3\u8f6c\u76ee\u6807\uff0c\u7f51\u5740\u4e0e\u5e94\u7528\u534f\u8bae\u90fd\u53ef\u4ee5\u4f7f\u7528\u3002');
+    document.getElementById('labelName').innerText = '\u663e\u793a\u540d\u79f0';
     document.getElementById('editName').value = item.name;
     document.getElementById('editUrl').value = item.url;
-    document.querySelector('#groupUrl label').innerText = '缃戝潃 URL / 搴旂敤鍗忚';
+    document.querySelector('#groupUrl label').innerText = '\u7f51\u5740 URL / \u5e94\u7528\u534f\u8bae';
     document.getElementById('groupUrl').style.display = 'block';
     document.getElementById('editModal').style.display = 'flex';
 }
@@ -190,7 +190,7 @@ function saveData() {
     const newUrl = document.getElementById('editUrl').value;
 
     if (!newName) {
-        alert('鍚嶇О涓嶈兘涓虹┖');
+        alert('\u540d\u79f0\u4e0d\u80fd\u4e3a\u7a7a');
         return;
     }
 
@@ -212,7 +212,15 @@ function updateClock() {
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-GB', { hour12: false });
     const dateStr = now.toLocaleDateString('zh-CN');
-    const weekArr = ['鍛ㄦ棩', '鍛ㄤ竴', '鍛ㄤ簩', '鍛ㄤ笁', '鍛ㄥ洓', '鍛ㄤ簲', '鍛ㄥ叚'];
+    const weekArr = [
+        '\u5468\u65e5',
+        '\u5468\u4e00',
+        '\u5468\u4e8c',
+        '\u5468\u4e09',
+        '\u5468\u56db',
+        '\u5468\u4e94',
+        '\u5468\u516d'
+    ];
     const weekStr = weekArr[now.getDay()];
 
     document.getElementById('clockTime').innerText = timeStr;

@@ -4,25 +4,39 @@
     align-items: center;
     gap: 12px;
     margin-left: 20px;
-    padding: 6px 12px;
-    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 14px;
+    background: rgba(0, 120, 255, 0.15);
     backdrop-filter: blur(10px);
     border-radius: 20px;
-    color: #fff;
+    color: #333;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(0, 120, 255, 0.25);
+}
+
+body.dark-mode .weather-widget {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .weather-widget:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 120, 255, 0.25);
     transform: translateY(-2px);
+}
+
+body.dark-mode .weather-widget:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .weather-icon {
     font-size: 18px;
-    color: #ffeb3b;
+    color: #f57c00; /* 浅色模式下用深橙色，更清晰 */
+}
+
+body.dark-mode .weather-icon {
+    color: #ffeb3b; /* 深色模式保持亮黄色 */
 }
 
 .weather-info {
@@ -45,7 +59,11 @@
 
 .weather-pop-info {
     font-size: 11px;
-    color: #81d4fa;
+    color: #0288d1; /* 浅色模式下用稍深的蓝色 */
+}
+
+body.dark-mode .weather-pop-info {
+    color: #81d4fa; /* 深色模式保持浅蓝色 */
 }
 
 /* 天气详细面板 (Popover/Dropdown) */
