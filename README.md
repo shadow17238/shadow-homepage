@@ -4,7 +4,7 @@
 
 本项目采用 **原生优先 (Vanilla First)** 的开发理念，在不使用任何现代重型框架（如 React/Vue）的前提下，实现了复杂的交互、数据持久化、音频可视化及实时统计功能。
 
-<img src="F:\shadow's homepage\images\111.png" style="zoom:50%;" />
+<img src="images/111.png" style="zoom:50%;" />
 
 ## 🌟 核心特性
 
