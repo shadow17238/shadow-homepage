@@ -80,7 +80,9 @@
 
     <div class="search-section animate-in-top" style="--delay: 0.1s">
         <div class="search-box">
-            <i class="fa-brands fa-windows search-icon"></i>
+            <div class="search-engine-selector" id="searchEngineSelector" title="点击切换搜索引擎">
+                <img src="images/bing.ico" id="currentSearchIcon" class="search-engine-icon" alt="搜索引擎">
+            </div>
             <input type="text" id="searchInput" placeholder=" 请输入搜索内容~">
             <button class="search-btn" id="searchBtn">GO</button>
             <div id="searchHistoryContainer" class="search-history search-history-container">
@@ -343,8 +345,8 @@
     <script src="js/stats-data.js"></script>
     <script src="js/weather.js"></script>
     <script src="js/links.js"></script>
-    <script src="js/script.js"></script>
     <script src="js/search.js"></script>
+    <script src="js/script.js"></script>
     <script src="js/backup.js"></script>
     <script src="js/countdown.js"></script>
     <script src="js/media.js"></script>

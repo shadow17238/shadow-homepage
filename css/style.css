@@ -297,9 +297,29 @@ body.dark-mode .history-item span {
     color: var(--text-color);
 }
 
-.search-icon {
+.search-engine-selector {
     padding-left: 15px;
-    color: #3c78d8; font-size: 18px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    user-select: none;
+}
+
+.search-engine-selector:hover {
+    transform: scale(1.1);
+}
+
+.search-engine-selector:active {
+    transform: scale(0.9);
+}
+
+.search-engine-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    border-radius: 4px;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
 }
 
 .search-box input {

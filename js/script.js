@@ -1,4 +1,3 @@
-const MAX_HISTORY_ITEMS = 100;
 let editModalPointerDownOnOverlay = false;
 let statsModalPointerDownOnOverlay = false;
 
@@ -65,6 +64,9 @@ function startRuntimeServices() {
     drawStaticLine();
     if (typeof WeatherApp !== 'undefined') {
         WeatherApp.init();
+    }
+    if (typeof initSearchEngine !== 'undefined') {
+        initSearchEngine();
     }
 }
 

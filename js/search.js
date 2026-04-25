@@ -1,6 +1,73 @@
+const MAX_HISTORY_ITEMS = 100;
 let isSearchHistoryListenerBound = false;
 let isSearchHistoryPositionListenerBound = false;
 let isSearchHistoryMountedToBody = false;
+
+// 搜索引擎配置
+const searchEngines = [
+    {
+        id: 'bing',
+        name: 'Bing',
+        url: 'https://www.bing.com/search?q=',
+        icon: 'images/bing.ico',
+        placeholder: ' Bing 搜索内容~'
+    },
+    {
+        id: 'google',
+        name: 'Google',
+        url: 'https://www.google.com/search?q=',
+        icon: 'images/google.ico',
+        placeholder: ' Google 搜索内容~'
+    },
+    {
+        id: 'github',
+        name: 'GitHub',
+        url: 'https://github.com/search?q=',
+        icon: 'images/github.ico',
+        placeholder: ' GitHub 仓库/项目~'
+    }
+];
+
+let currentEngineIndex = 0;
+
+// 初始化搜索引擎
+function initSearchEngine() {
+    const savedEngineId = localStorage.getItem('shadow_current_search_engine') || 'bing';
+    currentEngineIndex = searchEngines.findIndex(e => e.id === savedEngineId);
+    if (currentEngineIndex === -1) currentEngineIndex = 0;
+    
+    updateSearchEngineUI();
+
+    const selector = document.getElementById('searchEngineSelector');
+    if (selector) {
+        selector.onclick = function(e) {
+            e.stopPropagation();
+            switchSearchEngine();
+        };
+    }
+}
+
+function switchSearchEngine() {
+    currentEngineIndex = (currentEngineIndex + 1) % searchEngines.length;
+    const engine = searchEngines[currentEngineIndex];
+    localStorage.setItem('shadow_current_search_engine', engine.id);
+    updateSearchEngineUI();
+}
+
+function updateSearchEngineUI() {
+    const engine = searchEngines[currentEngineIndex];
+    const iconImg = document.getElementById('currentSearchIcon');
+    const searchInput = document.getElementById('searchInput');
+    
+    if (iconImg) {
+        iconImg.src = engine.icon;
+        iconImg.alt = engine.name;
+    }
+    
+    if (searchInput && !isEditMode) {
+        searchInput.placeholder = engine.placeholder;
+    }
+}
 
 function ensureSearchHistoryMounted() {
     const historyContainer = document.getElementById('searchHistoryContainer');
@@ -41,8 +108,8 @@ function doSearch() {
     if (!query) return;
 
     addToSearchHistory(query);
-    // 固定回退到最初的 Bing 搜索
-    window.open(`https://www.bing.com/search?q=${encodeURIComponent(query)}`, '_blank');
+    const engine = searchEngines[currentEngineIndex];
+    window.open(`${engine.url}${encodeURIComponent(query)}`, '_blank');
 }
 
 function handleSearch(e) {
@@ -151,11 +218,11 @@ function showSearchHistory() {
 
     const titleSpan = document.createElement('span');
     titleSpan.className = 'history-title';
-    titleSpan.textContent = '\u641c\u7d22\u5386\u53f2';
+    titleSpan.textContent = '搜索历史';
 
     const clearBtn = document.createElement('button');
     clearBtn.className = 'clear-history';
-    clearBtn.textContent = '\u6e05\u7a7a';
+    clearBtn.textContent = '清空';
     clearBtn.addEventListener('click', function () { clearSearchHistory(); });
 
     headerDiv.appendChild(titleSpan);
@@ -180,7 +247,7 @@ function showSearchHistory() {
 }
 
 function clearSearchHistory() {
-    if (!confirm('\u786e\u5b9a\u8981\u6e05\u7a7a\u6240\u6709\u641c\u7d22\u5386\u53f2\u5417\uff1f')) return;
+    if (!confirm('确定要清空所有搜索历史吗？')) return;
 
     searchHistory = [];
     AppState.persistSearchHistory();
@@ -218,3 +285,6 @@ function removeHistoryItem(index) {
         isSearchHistoryListenerBound = false;
     }
 }
+
+// 导出初始化函数供主逻辑调用
+window.initSearchEngine = initSearchEngine;
