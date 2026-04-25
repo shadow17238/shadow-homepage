@@ -6,6 +6,7 @@
 ## 项目特点
 
 - 分类导航：按分组展示常用链接，支持编辑模式下修改名称和地址。
+- 天气集成：内置 OpenWeatherMap 天气功能，实时显示气温、降雨概率，并提供今日/明日详细预报与雨天提醒。
 - 应用协议：链接卡片支持填写 `weixin://`、`obsidian://` 等应用协议，点击后可直接尝试拉起本地应用。
 - 搜索体验：内置 Bing 搜索，支持搜索历史、关键词匹配和拼音匹配。
 - 数据统计：支持 `今日 / 本周 / 本月` 视图，可查看点击趋势、在线时长和热门网页。
@@ -42,7 +43,8 @@ shadow's homepage/
 |-- CHANGELOG.md
 |-- css/
 |   |-- style.css
-|   `-- stats.css
+|   |-- stats.css
+|   `-- weather.css
 |-- data/
 |   `-- data.js
 |-- images/
@@ -62,7 +64,8 @@ shadow's homepage/
 |   |-- stats-ui.js
 |   |-- stats.js
 |   |-- storage.js
-|   `-- utils.js
+|   |-- utils.js
+|   `-- weather.js
 |-- vendor/
 |   |-- fontawesome/
 |   |-- fonts/
@@ -77,11 +80,13 @@ shadow's homepage/
 - [index.html](/F:/shadow's%20homepage/index.html:1)：页面入口、DOM 结构和资源引用。
 - [css/style.css](/F:/shadow's%20homepage/css/style.css:1)：全局样式、布局、主题和弹窗视觉。
 - [css/stats.css](/F:/shadow's%20homepage/css/stats.css:1)：统计面板和图表相关样式。
+- [css/weather.css](/F:/shadow's%20homepage/css/weather.css:1)：天气挂件、详情面板和设置弹窗样式。
 - [data/data.js](/F:/shadow's%20homepage/data/data.js:1)：默认链接、默认倒数日、默认标题与时钟位置。
 - [js/app-state.js](/F:/shadow's%20homepage/js/app-state.js:1)：全局运行状态与持久化入口。
 - [js/script.js](/F:/shadow's%20homepage/js/script.js:1)：应用启动流程、全局事件绑定和基础运行逻辑。
 - [js/links.js](/F:/shadow's%20homepage/js/links.js:1)：导航渲染、编辑模式、应用协议跳转与时钟拖拽处理。
 - [js/search.js](/F:/shadow's%20homepage/js/search.js:1)：搜索、搜索历史和拼音匹配。
+- [js/weather.js](/F:/shadow's%20homepage/js/weather.js:1)：天气数据获取、降雨逻辑处理与界面渲染。
 - [js/countdown.js](/F:/shadow's%20homepage/js/countdown.js:1)：倒数日数据处理、农历生日逻辑和表单管理。
 - [js/stats-data.js](/F:/shadow's%20homepage/js/stats-data.js:1)：统计数据归档、聚合和持久化。
 - [js/stats-ui.js](/F:/shadow's%20homepage/js/stats-ui.js:1)：统计面板、排行榜和图表渲染。

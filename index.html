@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -11,6 +11,7 @@
     <link href="vendor/fonts/ma-shan-zheng.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/stats.css">
+    <link rel="stylesheet" href="css/weather.css">
     <script src="vendor/lunar/lunar.min.js"></script>
     <script src="vendor/pinyin/pinyin-pro.js"></script>
     <script src="data/data.js"></script>
@@ -30,12 +31,24 @@
     </div>
 
     <header>
-        <div class="logo">
-            <img src="images/avatar.jpg" class="user-avatar" alt="头像">
-            <span>shadow's homepage</span>
+        <div class="header-left" style="display: flex; align-items: center;">
+            <div class="logo">
+                <img src="images/avatar.jpg" class="user-avatar" alt="头像">
+                <span>shadow's homepage</span>
+            </div>
+
+            <div id="weather-widget-container" style="position: relative;">
+                <div id="weather-widget" class="weather-widget" style="margin-left: 10px;">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <span>加载中...</span>
+                </div>
+                <div id="weather-details" class="weather-details-panel">
+                    <!-- 详情内容由 JS 渲染 -->
+                </div>
+            </div>
         </div>
 
-        <div class="romantic-text" id="artText">爱意随风起，风止意难平</div>
+        <div class="romantic-text" id="artText" style="position: absolute; left: 50%; transform: translateX(-50%);">爱意随风起，风止意难平</div>
 
         <div class="header-actions">
             <button class="icon-btn" id="statsBtn" title="查看统计" data-fallback="统计">
@@ -281,11 +294,55 @@
     </div>
 
     <input type="file" id="importInput" class="hidden-file-input" accept=".json">
+
+    <!-- 天气设置 Modal -->
+    <div class="modal-overlay" id="weatherModal">
+        <div class="modal weather-modal">
+            <div class="weather-aurora weather-aurora-one"></div>
+            <div class="weather-aurora weather-aurora-two"></div>
+            <div class="edit-modal-header">
+                <div>
+                    <h3>天气设置</h3>
+                    <p class="edit-modal-subtitle">选择城市并配置 API Key</p>
+                </div>
+                <button class="stats-close-btn" id="weatherCloseBtn" title="关闭">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="edit-modal-body">
+                <div class="weather-settings-group">
+                    <label>城市选择</label>
+                    <select id="weatherCitySelect" class="weather-select">
+                        <option value="Hangzhou,CN">杭州</option>
+                        <option value="Xihu,Hangzhou,CN">杭州西湖区</option>
+                        <option value="Nanchong,CN">南充</option>
+                        <option value="Yilong,Nanchong,CN">南充仪陇</option>
+                        <option value="custom">自定义城市...</option>
+                    </select>
+                </div>
+                <div class="form-group" id="weatherCustomCityGroup" style="display: none;">
+                    <label>自定义城市名称 (英文/拼音)</label>
+                    <input type="text" id="weatherCityInput" placeholder="例如: Hangzhou">
+                </div>
+                <div class="form-group">
+                    <label>OpenWeatherMap API Key</label>
+                    <input type="text" id="weatherApiInput" class="weather-api-input" placeholder="请输入你的 API Key">
+                    <p style="font-size: 11px; opacity: 0.6; margin-top: 5px;">API Key 将保存在本地浏览器中。</p>
+                </div>
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-cancel" id="weatherCancelBtn">取消</button>
+                <button class="btn btn-save" id="weatherSaveBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/utils.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/app-state.js"></script>
     <script src="js/stats-data.js"></script>
     <script src="js/stats-ui.js"></script>
+    <script src="js/weather.js"></script>
     <script src="js/script.js"></script>
     <script src="js/links.js"></script>
     <script src="js/search.js"></script>
@@ -295,4 +352,3 @@
     <script src="js/background.js"></script>
 </body>
 </html>
-

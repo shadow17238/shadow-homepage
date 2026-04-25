@@ -36,6 +36,9 @@ function startRuntimeServices() {
     renderLinks();
     initCountdowns();
     drawStaticLine();
+    if (typeof WeatherApp !== 'undefined') {
+        WeatherApp.init();
+    }
 }
 
 function applyDependencyFallbacks() {
