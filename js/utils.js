@@ -252,3 +252,9 @@ function initModalCloseOnOverlayClick(modalId, closeFn) {
         isPointerDownOnOverlay = false;
     });
 }
+
+/**
+ * 全局共享的星期名称数组
+ */
+const WEEKDAY_NAMES = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+

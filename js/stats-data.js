@@ -329,46 +329,48 @@ function formatHourLabel(hour) {
 }
 
 /**
+ * 统计范围对应的配置选项映射表
+ */
+const STATS_RANGE_CONFIGS = {
+    'today': {
+        key: 'today',
+        title: '今日',
+        subtitle: '今日点击趋势、在线时长和热门网页',
+        days: 1,
+        rankingLabel: '今日网页点击排行榜',
+        topSiteLabel: '今日最热门网页',
+        clicksLabel: '今日总点击',
+        onlineLabel: '今日在线时长'
+    },
+    'week': {
+        key: 'week',
+        title: '本周',
+        subtitle: '最近 7 天点击趋势、在线时长和热门网页',
+        days: 7,
+        rankingLabel: '本周网页点击排行榜',
+        topSiteLabel: '本周最热门网页',
+        clicksLabel: '本周总点击',
+        onlineLabel: '本周在线时长'
+    },
+    'month': {
+        key: 'month',
+        title: '本月',
+        subtitle: '最近 30 天点击趋势、在线时长和热门网页',
+        days: ANALYTICS_WINDOW_DAYS,
+        rankingLabel: '本月网页点击排行榜',
+        topSiteLabel: '本月最热门网页',
+        clicksLabel: '本月总点击',
+        onlineLabel: '本月在线时长'
+    }
+};
+
+/**
  * 获取统计范围对应的配置选项对象
  * @param {string} range - 统计范围标识 ('today', 'week', 'month')
  * @return {Object} 配置参数对象
  */
 function getStatsRangeConfig(range) {
-    switch (range) {
-        case 'today':
-            return {
-                key: 'today',
-                title: '今日',
-                subtitle: '今日点击趋势、在线时长和热门网页',
-                days: 1,
-                rankingLabel: '今日网页点击排行榜',
-                topSiteLabel: '今日最热门网页',
-                clicksLabel: '今日总点击',
-                onlineLabel: '今日在线时长'
-            };
-        case 'week':
-            return {
-                key: 'week',
-                title: '本周',
-                subtitle: '最近 7 天点击趋势、在线时长和热门网页',
-                days: 7,
-                rankingLabel: '本周网页点击排行榜',
-                topSiteLabel: '本周最热门网页',
-                clicksLabel: '本周总点击',
-                onlineLabel: '本周在线时长'
-            };
-        default:
-            return {
-                key: 'month',
-                title: '本月',
-                subtitle: '最近 30 天点击趋势、在线时长和热门网页',
-                days: ANALYTICS_WINDOW_DAYS,
-                rankingLabel: '本月网页点击排行榜',
-                topSiteLabel: '本月最热门网页',
-                clicksLabel: '本月总点击',
-                onlineLabel: '本月在线时长'
-            };
-    }
+    return STATS_RANGE_CONFIGS[range] || STATS_RANGE_CONFIGS['month'];
 }
 
 /**

@@ -127,10 +127,9 @@ function checkBackupReminder() {
 }
 
 /**
- * 集中绑定页面所有组件的交互事件监听器
+ * 绑定主题切换相关的事件
  */
-function bindEventListeners() {
-    // 主题切换（深色/浅色模式）
+function bindThemeEvents() {
     document.getElementById('themeBtn').addEventListener('click', function() {
         document.body.classList.toggle('dark-mode');
         const icon = this.querySelector('i');
@@ -143,15 +142,19 @@ function bindEventListeners() {
             AppStorage.setTheme('light');
         }
     });
+}
 
-    // 打开统计分析面板
+/**
+ * 绑定统计分析模块相关的事件
+ */
+function bindStatsEvents() {
+    // 打开面板
     document.getElementById('statsBtn').addEventListener('click', async function() {
-        // 动态加载 UI 脚本，显示加载状态
         await loadWithSpinner(this, 'js/stats-ui.js', 'openStatsModal');
         if (typeof openStatsModal !== 'undefined') openStatsModal();
     });
 
-    // 统计面板内的时间范围切换
+    // 统计范围切换
     document.querySelectorAll('#statsRangeSwitcher .stats-range-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             if (typeof setStatsRange !== 'undefined') {
@@ -160,91 +163,109 @@ function bindEventListeners() {
         });
     });
 
-    // 进入/退出编辑模式
+    // 关闭按钮
+    document.getElementById('statsCloseBtn').addEventListener('click', function() {
+        if (typeof closeStatsModal === 'function') closeStatsModal();
+    });
+}
+
+/**
+ * 绑定编辑模式及寄语修改相关的事件
+ */
+function bindEditEvents() {
+    // 切换编辑模式
     document.getElementById('editBtn').addEventListener('click', function() {
         isEditMode = !isEditMode;
         this.classList.toggle('active');
         document.body.classList.toggle('edit-mode');
-        // 编辑模式下搜索框显示辅助提示文案
+        
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.placeholder = isEditMode
                 ? '现在是编辑模式，点击任意卡片即可修改...'
                 : ' 请输入搜索内容~';
         }
-        renderLinks(); // 重新渲染列表以更新样式和行为
+        renderLinks();
     });
 
-    // 音频可视化控制按钮
+    // 点击艺术字标题
+    document.getElementById('artText').addEventListener('click', function() {
+        editTitle();
+    });
+}
+
+/**
+ * 绑定搜索及搜索历史相关的事件
+ */
+function bindSearchEvents() {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', showSearchHistory);
+    searchInput.addEventListener('keypress', handleSearch);
+    searchInput.addEventListener('focus', showSearchHistory);
+
+    document.getElementById('searchBtn').addEventListener('click', doSearch);
+    document.getElementById('clearHistoryBtn').addEventListener('click', clearSearchHistory);
+}
+
+/**
+ * 绑定多媒体功能（可视化、摄像头、一言）相关的事件
+ */
+function bindMediaEvents() {
+    // 音频可视化
     document.getElementById('audioVisualBtn').addEventListener('click', async function() {
-        // 动态加载媒体处理核心脚本
         await loadWithSpinner(this, 'js/media.js', 'drawVisualizer');
 
         if (!isVisualizerOn) {
             try {
-                // 请求用户麦克风访问权限
                 audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
                 if (!audioCtx) {
                     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 } else if (audioCtx.state === 'suspended') {
                     await audioCtx.resume();
                 }
-
-                // 创建并连接音频分析节点
                 analyser = audioCtx.createAnalyser();
                 analyser.fftSize = 256;
                 source = audioCtx.createMediaStreamSource(audioStream);
                 source.connect(analyser);
-
                 isVisualizerOn = true;
                 this.classList.add('active');
-                drawVisualizer(); // 启动帧动画循环绘制频谱
+                drawVisualizer();
             } catch (err) {
                 console.error('麦克风启动失败:', err);
                 alert('无法获取麦克风权限，请检查浏览器设置。');
             }
         } else {
-            // 关闭可视化服务并释放资源
             isVisualizerOn = false;
             this.classList.remove('active');
-
             if (animationId) cancelAnimationFrame(animationId);
             if (audioStream) audioStream.getTracks().forEach(track => track.stop());
             if (source) source.disconnect();
             if (analyser) analyser.disconnect();
-
-            drawStaticLine(); // 画布恢复静态展示
+            drawStaticLine();
         }
     });
 
-    // 摄像头预览及录制控制按钮
+    // 摄像头
     document.getElementById('cameraBtn').addEventListener('click', async function() {
         await loadWithSpinner(this, 'js/media.js', 'closeCamera');
-
-        const videoEl = document.getElementById('camera-feed');
         if (cameraStream) {
             closeCamera();
             return;
         }
-
         try {
-            // 请求摄像头和麦克风并发流
             cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            const videoEl = document.getElementById('camera-feed');
             if (videoEl) {
                 videoEl.srcObject = cameraStream;
-                videoEl.muted = true; // 预览场景静音以防止声学反馈
+                videoEl.muted = true;
                 videoEl.play();
             }
-            // 弹出预览窗口并重置位置
             const cameraWin = document.getElementById('camera-window');
             if (cameraWin) {
                 cameraWin.style.display = 'flex';
                 cameraWin.classList.remove('camera-window-hidden');
-                cameraWin.style.left = '';
-                cameraWin.style.top = '';
-                cameraWin.style.right = '';
-                cameraWin.style.bottom = '';
             }
             this.classList.add('active');
         } catch (err) {
@@ -253,135 +274,81 @@ function bindEventListeners() {
         }
     });
 
-    // 录制开始/停止切换
+    // 录制控制
     document.getElementById('recordBtn').addEventListener('click', function() {
-        if (!isRecording) {
-            startRecording();
-        } else {
-            stopRecording();
-        }
+        if (!isRecording) startRecording();
+        else stopRecording();
     });
 
-    // 点击模态框背景自动关闭逻辑初始化
+    // 窗口控制
+    document.getElementById('cameraCloseBtn').addEventListener('click', closeCamera);
+    document.getElementById('cameraMinBtn').addEventListener('click', toggleCameraMin);
+
+    // 一言点击刷新
+    document.getElementById('audioText').addEventListener('click', updateDailyHitokoto);
+}
+
+/**
+ * 绑定模态框背景点击自动关闭事件
+ */
+function bindModalOverlayEvents() {
     initModalCloseOnOverlayClick('editModal', () => {
         if (typeof closeModal === 'function') closeModal();
     });
     initModalCloseOnOverlayClick('statsModal', () => {
         if (typeof closeStatsModal === 'function') closeStatsModal();
     });
+}
 
-    // 搜索交互相关事件绑定
-    document.getElementById('searchInput').addEventListener('input', function() {
-        showSearchHistory();
-    });
+/**
+ * 绑定模态框（主要是编辑链接弹窗）内部按钮事件
+ */
+function bindModalButtonEvents() {
+    document.getElementById('modalCancelBtn').addEventListener('click', closeModal);
+    document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+    document.getElementById('modalSaveBtn').addEventListener('click', saveData);
+}
 
-    document.getElementById('searchInput').addEventListener('keypress', function(e) {
-        handleSearch(e);
-    });
-
-    document.getElementById('searchInput').addEventListener('focus', function() {
-        showSearchHistory();
-    });
-
-    document.getElementById('searchBtn').addEventListener('click', function() {
-        doSearch();
-    });
-
-    document.getElementById('clearHistoryBtn').addEventListener('click', function() {
-        clearSearchHistory();
-    });
-
-    // 时钟区域交互（点击进入倒计时管理）
-    document.getElementById('clock-box').addEventListener('click', function() {
-        // 如果是从拖动操作中释放，则拦截此次点击，防止误触发模态框
-        if (this.dataset.suppressClick === 'true') {
-            this.dataset.suppressClick = 'false';
-            return;
-        }
-        openCountdownModal();
-    });
-
-    // 点击艺术字标题修改寄语
-    document.getElementById('artText').addEventListener('click', function() {
-        editTitle();
-    });
-
-    // 点击底部文案手动强制刷新一言
-    document.getElementById('audioText').addEventListener('click', function() {
-        updateDailyHitokoto();
-    });
-
-    // 数据导入导出交互
-    document.getElementById('importBtn').addEventListener('click', function() {
-        triggerImport();
-    });
-
-    document.getElementById('exportBtn').addEventListener('click', function() {
-        exportData();
-    });
-
-    // 模态框内部按钮操作
-    document.getElementById('modalCancelBtn').addEventListener('click', function() {
-        closeModal();
-    });
-
-    document.getElementById('modalCloseBtn').addEventListener('click', function() {
-        closeModal();
-    });
-
-    document.getElementById('modalSaveBtn').addEventListener('click', function() {
-        saveData();
-    });
-
-    // 倒计时表单交互行为
-    document.getElementById('cdType').addEventListener('change', function() {
-        toggleCdInput();
-    });
-
-    document.getElementById('cdCloseBtn').addEventListener('click', function() {
-        resetCountdownForm();
-        document.getElementById('countdownModal').style.display = 'none';
-    });
-
-    document.getElementById('countdownCloseBtn').addEventListener('click', function() {
-        resetCountdownForm();
-        document.getElementById('countdownModal').style.display = 'none';
-    });
-
-    document.getElementById('cdAddBtn').addEventListener('click', function() {
-        addCountdown();
-    });
-
-    document.getElementById('cdResetBtn').addEventListener('click', function() {
-        resetCountdownForm();
-    });
-
-    // 统计分析界面关闭
-    document.getElementById('statsCloseBtn').addEventListener('click', function() {
-        closeStatsModal();
-    });
-
-    // 摄像头悬浮窗交互
-    document.getElementById('cameraCloseBtn').addEventListener('click', function() {
-        closeCamera();
-    });
-
-    document.getElementById('cameraMinBtn').addEventListener('click', function() {
-        toggleCameraMin();
-    });
-
-    // 文件导入 input 监听
+/**
+ * 绑定导入导出相关的事件
+ */
+function bindImportExportEvents() {
+    document.getElementById('importBtn').addEventListener('click', triggerImport);
+    document.getElementById('exportBtn').addEventListener('click', exportData);
     document.getElementById('importInput').addEventListener('change', function() {
         importData(this);
     });
+}
 
-    // 页面卸载或刷新前强制持久化关键数据
+/**
+ * 绑定倒计时管理表单相关的事件
+ */
+function bindCountdownFormEvents() {
+    document.getElementById('cdType').addEventListener('change', toggleCdInput);
+    document.getElementById('cdAddBtn').addEventListener('click', addCountdown);
+    document.getElementById('cdResetBtn').addEventListener('click', resetCountdownForm);
+
+    const closeBtns = ['cdCloseBtn', 'countdownCloseBtn'];
+    closeBtns.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.addEventListener('click', () => {
+                resetCountdownForm();
+                document.getElementById('countdownModal').style.display = 'none';
+            });
+        }
+    });
+}
+
+/**
+ * 绑定页面生命周期及能见度状态事件
+ */
+function bindLifecycleEvents() {
     window.addEventListener('beforeunload', function() {
         AppState.persistOnlineTime();
         flushAnalyticsData();
     });
 
-    // 页面能见度改变时（最小化/切换标签页）保存进度
     document.addEventListener('visibilitychange', function() {
         isPageVisible = document.visibilityState !== 'hidden';
         if (document.visibilityState === 'hidden') {
@@ -389,8 +356,38 @@ function bindEventListeners() {
             flushAnalyticsData();
         }
     });
+}
 
-    // 初始化交互性组件
+/**
+ * 绑定时钟交互相关的事件
+ */
+function bindClockEvents() {
+    document.getElementById('clock-box').addEventListener('click', function() {
+        if (this.dataset.suppressClick === 'true') {
+            this.dataset.suppressClick = 'false';
+            return;
+        }
+        openCountdownModal();
+    });
+}
+
+/**
+ * 集中分发绑定页面所有组件的交互事件监听器
+ */
+function bindEventListeners() {
+    bindThemeEvents();
+    bindStatsEvents();
+    bindEditEvents();
+    bindSearchEvents();
+    bindMediaEvents();
+    bindModalOverlayEvents();
+    bindModalButtonEvents();
+    bindImportExportEvents();
+    bindCountdownFormEvents();
+    bindLifecycleEvents();
+    bindClockEvents();
+
+    // 初始化核心交互组件
     initClockDrag();
     initInteractiveBackground();
 }

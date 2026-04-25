@@ -234,58 +234,10 @@ function isSearchHistoryMatch(item, normalizedQuery) {
 }
 
 /**
- * 构造并展示搜索历史浮层
+ * 构建搜索历史浮层的页眉（标题 + 清空按钮）
+ * @return {HTMLElement}
  */
-function showSearchHistory() {
-    const historyContainer = ensureSearchHistoryMounted();
-    const searchInput = document.getElementById('searchInput');
-    if (!historyContainer) return;
-
-    // 没有任何历史时保持隐藏
-    if (searchHistory.length === 0) {
-        historyContainer.style.display = 'none';
-        return;
-    }
-
-    const sortedHistory = getSortedSearchHistory(searchInput ? searchInput.value : '');
-    historyContainer.style.display = 'block';
-    updateSearchHistoryPosition();
-
-    // 构造列表 DOM 片段
-    const historyList = document.createElement('div');
-    historyList.className = 'history-list';
-
-    sortedHistory.forEach(({ item, index }) => {
-        const historyItem = document.createElement('div');
-        historyItem.className = 'history-item';
-        historyItem.addEventListener('click', () => selectHistoryItem(item));
-
-        const icon = document.createElement('i');
-        icon.className = 'fa-solid fa-history';
-
-        const text = document.createElement('span');
-        text.textContent = item;
-
-        // 右侧“移除”按钮
-        const removeBtn = document.createElement('span');
-        removeBtn.className = 'history-remove';
-        const removeIcon = document.createElement('i');
-        removeIcon.className = 'fa-solid fa-times';
-        removeBtn.appendChild(removeIcon);
-        removeBtn.addEventListener('click', (event) => {
-            event.stopPropagation();
-            removeHistoryItem(index);
-        });
-
-        historyItem.appendChild(icon);
-        historyItem.appendChild(text);
-        historyItem.appendChild(removeBtn);
-        historyList.appendChild(historyItem);
-    });
-
-    historyContainer.innerHTML = '';
-
-    // 构造页眉（包含“清空”按钮）
+function buildHistoryHeader() {
     const headerDiv = document.createElement('div');
     headerDiv.className = 'history-header';
 
@@ -296,16 +248,54 @@ function showSearchHistory() {
     const clearBtn = document.createElement('button');
     clearBtn.className = 'clear-history';
     clearBtn.textContent = '清空';
-    clearBtn.addEventListener('click', function () { clearSearchHistory(); });
+    clearBtn.onclick = () => clearSearchHistory();
 
     headerDiv.appendChild(titleSpan);
     headerDiv.appendChild(clearBtn);
-    historyContainer.appendChild(headerDiv);
-    historyContainer.appendChild(historyList);
+    return headerDiv;
+}
 
-    updateSearchHistoryPosition();
+/**
+ * 构建搜索历史列表 DOM 片段
+ * @param {Array} sortedHistory - 排序后的历史数据
+ * @return {HTMLElement}
+ */
+function buildHistoryList(sortedHistory) {
+    const historyList = document.createElement('div');
+    historyList.className = 'history-list';
 
-    // 首次触发时绑定全局自动隐藏事件
+    sortedHistory.forEach(({ item, index }) => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        historyItem.onclick = () => selectHistoryItem(item);
+
+        const icon = document.createElement('i');
+        icon.className = 'fa-solid fa-history';
+
+        const text = document.createElement('span');
+        text.textContent = item;
+
+        const removeBtn = document.createElement('span');
+        removeBtn.className = 'history-remove';
+        removeBtn.innerHTML = '<i class="fa-solid fa-times"></i>';
+        removeBtn.onclick = (e) => {
+            e.stopPropagation();
+            removeHistoryItem(index);
+        };
+
+        historyItem.appendChild(icon);
+        historyItem.appendChild(text);
+        historyItem.appendChild(removeBtn);
+        historyList.appendChild(historyItem);
+    });
+
+    return historyList;
+}
+
+/**
+ * 确保相关的全局监听器已绑定
+ */
+function ensureHistoryListenersBound() {
     if (!isSearchHistoryListenerBound) {
         isSearchHistoryListenerBound = true;
         setTimeout(() => {
@@ -313,12 +303,36 @@ function showSearchHistory() {
         }, 100);
     }
 
-    // 绑定窗口改变大小时的布局自适应
     if (!isSearchHistoryPositionListenerBound) {
         isSearchHistoryPositionListenerBound = true;
         window.addEventListener('resize', updateSearchHistoryPosition);
         window.addEventListener('scroll', updateSearchHistoryPosition, true);
     }
+}
+
+/**
+ * 构造并展示搜索历史浮层（主编排逻辑）
+ */
+function showSearchHistory() {
+    const historyContainer = ensureSearchHistoryMounted();
+    const searchInput = document.getElementById('searchInput');
+    if (!historyContainer) return;
+
+    if (searchHistory.length === 0) {
+        historyContainer.style.display = 'none';
+        return;
+    }
+
+    const query = searchInput ? searchInput.value : '';
+    const sortedHistory = getSortedSearchHistory(query);
+    
+    historyContainer.style.display = 'block';
+    historyContainer.innerHTML = '';
+    historyContainer.appendChild(buildHistoryHeader());
+    historyContainer.appendChild(buildHistoryList(sortedHistory));
+
+    updateSearchHistoryPosition();
+    ensureHistoryListenersBound();
 }
 
 /**

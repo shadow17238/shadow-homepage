@@ -19,11 +19,6 @@ const WeatherConfig = {
     CACHE_TTL: 30 * 60 * 1000
 };
 
-/**
- * 星期文字映射
- */
-const WEATHER_WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-
 let weatherData = null; // 当前天气数据对象
 let weatherRefreshTimer = null; // 自动刷新定时器
 let isWeatherPanelOpen = false; // 天气详情面板显示状态
@@ -192,7 +187,7 @@ const WeatherApp = {
         const tomorrow = new Date(today);
         tomorrow.setDate(today.getDate() + 1);
         if (d.toDateString() === tomorrow.toDateString()) return '明日';
-        return WEATHER_WEEKDAYS[d.getDay()];
+        return WEEKDAY_NAMES[d.getDay()];
     },
 
     /**
@@ -213,39 +208,12 @@ const WeatherApp = {
     },
 
     /**
-     * 执行界面渲染逻辑，更新挂件和详情面板
+     * 渲染主页顶部的小挂件 HTML
+     * @param {HTMLElement} widget - 挂件 DOM 元素
      */
-    render() {
-        console.log('[Weather] Rendering UI... Data:', weatherData ? 'Available' : 'Empty');
-        const widget = document.getElementById('weather-widget');
-        const details = document.getElementById('weather-details');
-        if (!widget || !details) {
-            console.error('[Weather] Critical: DOM elements missing!');
-            return;
-        }
-
-        // 处理无数据时的 UI（引导用户进行配置）
-        if (!weatherData) {
-            details.innerHTML = `
-                <div class="weather-panel-header">
-                    <span class="weather-panel-title">天气设置</span>
-                </div>
-                <div style="padding: 20px 0; text-align: center;">
-                    <p style="font-size: 13px; opacity: 0.7; margin-bottom: 15px;">尚未配置天气或获取失败</p>
-                    <button class="btn btn-save" id="weatherSettingsInnerBtn" style="width: 100%; border-radius: 12px;">
-                        <i class="fa-solid fa-gear"></i> 立即配置
-                    </button>
-                </div>
-            `;
-            const btn = document.getElementById('weatherSettingsInnerBtn');
-            if (btn) btn.onclick = (e) => { e.stopPropagation(); this.openSettings(); };
-            return;
-        }
-
+    renderWidget(widget) {
         const d = weatherData;
         const icon = this.getWeatherIcon(d.weatherId);
-        
-        // 渲染主页顶部的小挂件 HTML
         widget.innerHTML = `
             <i class="fa-solid ${icon} weather-icon"></i>
             <div class="weather-info">
@@ -258,9 +226,33 @@ const WeatherApp = {
                 </div>
             </div>
         `;
+    },
 
-        // 构造未来两天的简易预报列表 HTML
-        let forecastHtml = d.daily.map(f => `
+    /**
+     * 渲染空状态或引导配置详情面板
+     * @param {HTMLElement} details - 详情面板 DOM 元素
+     */
+    renderEmptyDetails(details) {
+        details.innerHTML = `
+            <div class="weather-panel-header">
+                <span class="weather-panel-title">天气设置</span>
+            </div>
+            <div style="padding: 20px 0; text-align: center;">
+                <p style="font-size: 13px; opacity: 0.7; margin-bottom: 15px;">尚未配置天气或获取失败</p>
+                <button class="btn btn-save" id="weatherSettingsInnerBtn" style="width: 100%; border-radius: 12px;">
+                    <i class="fa-solid fa-gear"></i> 立即配置
+                </button>
+            </div>
+        `;
+    },
+
+    /**
+     * 渲染完整的天气详情面板
+     * @param {HTMLElement} details - 详情面板 DOM 元素
+     */
+    renderDetailsPanel(details) {
+        const d = weatherData;
+        const forecastHtml = d.daily.map(f => `
             <div class="weather-forecast-row" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                 <span style="flex: 1;">${f.weekday}</span>
                 <i class="fa-solid ${this.getWeatherIcon(f.weatherId)}" style="flex: 1; text-align: center; color: #ffeb3b;"></i>
@@ -268,7 +260,6 @@ const WeatherApp = {
             </div>
         `).join('');
 
-        // 构造降雨预警或安全提示 HTML
         const rainWarning = d.rainProb > 30 ? 
             `<div class="weather-rain-warning" style="background: rgba(255, 82, 82, 0.1); padding: 10px; border-radius: 12px; margin-top: 10px; color: #ff5252;">
                 <i class="fa-solid fa-umbrella"></i> 未来3小时可能有雨，出门记得带伞
@@ -277,7 +268,6 @@ const WeatherApp = {
                 <i class="fa-solid fa-check-circle" style="color: #4caf50;"></i> 未来3小时降雨概率较低
             </div>`;
 
-        // 更新天气详情展示面板
         details.innerHTML = `
             <div class="weather-panel-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <span class="weather-panel-title" style="font-weight: bold; font-size: 16px;"><i class="fa-solid fa-location-dot"></i> ${d.city}</span>
@@ -303,35 +293,64 @@ const WeatherApp = {
                 数据来源 OpenWeatherMap • ${new Date(d.updatedAt).toLocaleTimeString()} 更新
             </div>
         `;
+    },
 
-        // 重新绑定面板内的设置入口按钮
-        const innerBtn = document.getElementById('weatherSettingsInnerBtn');
-        if (innerBtn) innerBtn.onclick = (e) => {
-            e.stopPropagation();
-            this.openSettings();
-        };
+    /**
+     * 重新绑定详情面板内的设置入口按钮
+     */
+    bindSettingsBtn() {
+        const btn = document.getElementById('weatherSettingsInnerBtn');
+        if (btn) {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                this.openSettings();
+            };
+        }
+    },
+
+    /**
+     * 执行界面渲染主逻辑，根据数据状态分发到子模块
+     */
+    render() {
+        console.log('[Weather] Rendering UI... Data:', weatherData ? 'Available' : 'Empty');
+        const widget = document.getElementById('weather-widget');
+        const details = document.getElementById('weather-details');
+        
+        if (!widget || !details) {
+            console.error('[Weather] Critical: DOM elements missing!');
+            return;
+        }
+
+        if (!weatherData) {
+            this.renderEmptyDetails(details);
+        } else {
+            this.renderWidget(widget);
+            this.renderDetailsPanel(details);
+        }
+
+        this.bindSettingsBtn();
     },
 
     /**
      * 渲染空状态（通常用于配置缺失时）
      */
     renderEmpty() {
-        this.render(); // 复用 render 中的空数据逻辑
         const widget = document.getElementById('weather-widget');
         if (widget) {
             widget.innerHTML = `<i class="fa-solid fa-cloud-sun weather-icon"></i> <span>配置天气</span>`;
         }
+        this.render(); 
     },
 
     /**
      * 渲染错误状态（通常用于接口失败时）
      */
     renderError() {
-        this.render(); 
         const widget = document.getElementById('weather-widget');
         if (widget) {
             widget.innerHTML = `<i class="fa-solid fa-circle-exclamation weather-icon" style="color: #ff5252;"></i> <span>获取失败</span>`;
         }
+        this.render(); 
     },
 
     /**

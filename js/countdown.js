@@ -171,53 +171,54 @@ function getDaysInfo(item) {
 }
 
 /**
- * 刷新页面侧边栏显示的倒数日列表
+ * 预处理倒计时数据：过滤过期项，计算剩余天数并排序
+ * @return {Array} 处理后的有序列表
  */
-function refreshCountdowns() {
-    const wrapper = document.getElementById('countdown-wrapper');
-    if (!countdownData || countdownData.length === 0) {
-        wrapper.style.display = 'none';
-        return;
-    }
-
+function processCountdownData() {
     const list = [];
     const newData = [];
 
-    // 计算每个项的剩余天数并处理过期项
     countdownData.forEach((item) => {
         const info = getDaysInfo(item);
-        // 如果项已经过期（针对普通日期），则在刷新时自动从列表中移除
         if (!info.isExpired) {
             newData.push(item);
         }
-
         if (!info.isExpired && !info.isInvalid) {
             list.push({ ...item, days: info.days, sortDate: info.target });
         }
     });
 
-    // 如果产生了自动移除，则更新本地存储
     if (newData.length !== countdownData.length) {
         countdownData = newData;
         saveCountdownData();
     }
 
-    if (list.length === 0) {
-        wrapper.style.display = 'none';
-        return;
-    }
-
-    // 列表排序：置顶项排在最前，其余按天数从小到大升序排列
+    // 排序逻辑：置顶项排在最前，其余按天数升序
     list.sort((a, b) => {
         if (Boolean(b.pinned) !== Boolean(a.pinned)) return Number(b.pinned) - Number(a.pinned);
         return a.days - b.days;
     });
 
-    wrapper.style.display = 'block';
-    wrapper.innerHTML = '';
+    return list;
+}
 
-    // 渲染最近的一条倒数日（重点展示）
-    const top = list[0];
+/**
+ * 生成“置顶”状态的 HTML 标签元素
+ * @return {HTMLElement}
+ */
+function getCountdownPinBadge() {
+    const pin = document.createElement('span');
+    pin.className = 'cd-top-pin';
+    pin.textContent = '置顶';
+    return pin;
+}
+
+/**
+ * 渲染最近的一条倒计时（重点展示）
+ * @param {Object} top - 首个倒计时对象
+ * @param {HTMLElement} wrapper - 容器元素
+ */
+function renderTopCountdown(top, wrapper) {
     const topDiv = document.createElement('div');
     topDiv.className = 'cd-top-item';
 
@@ -225,10 +226,7 @@ function refreshCountdowns() {
     topSpan.textContent = `${top.name} `;
 
     if (top.pinned) {
-        const topPin = document.createElement('span');
-        topPin.className = 'cd-top-pin';
-        topPin.textContent = '置顶';
-        topSpan.appendChild(topPin);
+        topSpan.appendChild(getCountdownPinBadge());
     }
 
     const topLabel = document.createElement('span');
@@ -238,44 +236,85 @@ function refreshCountdowns() {
 
     const topDays = document.createElement('span');
     topDays.className = 'cd-top-days';
-    // 临近 3 天内显示红色强调色
     topDays.style.color = top.days <= 3 ? '#ff4d4f' : 'var(--accent-color)';
     topDays.textContent = `${top.days}天`;
 
     topDiv.appendChild(topSpan);
     topDiv.appendChild(topDays);
     wrapper.appendChild(topDiv);
+}
 
-    // 渲染其余的普通倒数日项
-    for (let i = 1; i < list.length; i++) {
+/**
+ * 渲染其余普通的倒计时项
+ * @param {Array} items - 剩余的项列表
+ * @param {HTMLElement} wrapper - 容器元素
+ */
+function renderRemainingCountdowns(items, wrapper) {
+    items.forEach(item => {
         const div = document.createElement('div');
         div.className = 'cd-normal-item';
 
         const nameSpan = document.createElement('span');
-        nameSpan.textContent = list[i].name;
-        if (list[i].pinned) {
-            const pin = document.createElement('span');
-            pin.className = 'cd-top-pin';
-            pin.textContent = '置顶';
+        nameSpan.textContent = item.name;
+        if (item.pinned) {
             nameSpan.appendChild(document.createTextNode(' '));
-            nameSpan.appendChild(pin);
+            nameSpan.appendChild(getCountdownPinBadge());
         }
 
         const daysSpan = document.createElement('span');
         daysSpan.className = 'cd-days-small';
-        daysSpan.textContent = `${list[i].days} 天`;
+        daysSpan.textContent = `${item.days} 天`;
 
         div.appendChild(nameSpan);
         div.appendChild(daysSpan);
         wrapper.appendChild(div);
+    });
+}
+
+/**
+ * 刷新侧边栏 UI 显示
+ */
+function refreshCountdowns() {
+    const wrapper = document.getElementById('countdown-wrapper');
+    if (!countdownData || countdownData.length === 0) {
+        wrapper.style.display = 'none';
+        return;
     }
+
+    const sortedList = processCountdownData();
+    if (sortedList.length === 0) {
+        wrapper.style.display = 'none';
+        return;
+    }
+
+    wrapper.style.display = 'block';
+    wrapper.innerHTML = '';
+
+    renderTopCountdown(sortedList[0], wrapper);
+    renderRemainingCountdowns(sortedList.slice(1), wrapper);
+}
+
+/**
+ * 按钮工厂函数：创建管理列表中的操作按钮
+ * @param {Object} config - 按钮配置（icon, title, onClick, disabled, className）
+ * @return {HTMLButtonElement}
+ */
+function createEditButton(config) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `countdown-inline-btn ${config.className || ''}`;
+    btn.title = config.title;
+    btn.innerHTML = `<i class="fa-solid ${config.icon}"></i>`;
+    if (config.disabled) btn.disabled = true;
+    btn.onclick = config.onClick;
+    return btn;
 }
 
 /**
  * 打开倒数日编辑管理模态框
  */
 function openCountdownModal() {
-    if (!isEditMode) return; // 只有在首页开启编辑模式时才允许进入管理界面
+    if (!isEditMode) return;
     syncCountdownTypeAvailability();
 
     const listDiv = document.getElementById('cd-list-edit');
@@ -283,6 +322,7 @@ function openCountdownModal() {
 
     if (countdownData.length === 0) {
         const emptyHint = document.createElement('div');
+        emptyHint.className = 'empty-state-hint'; // 假设样式已定义或内联
         emptyHint.style.textAlign = 'center';
         emptyHint.style.color = '#999';
         emptyHint.style.padding = '20px';
@@ -290,14 +330,12 @@ function openCountdownModal() {
         listDiv.appendChild(emptyHint);
     }
 
-    // 渲染管理列表中的每一个可操作项
     countdownData.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'countdown-edit-item';
 
         const meta = document.createElement('div');
         meta.className = 'countdown-edit-meta';
-
         const title = document.createElement('span');
         title.textContent = `${index + 1}. ${item.name}`;
         meta.appendChild(title);
@@ -317,49 +355,42 @@ function openCountdownModal() {
         const actions = document.createElement('div');
         actions.className = 'countdown-edit-actions';
 
-        // 按钮组：置顶、上移、下移、编辑、删除
-        const pinBtn = document.createElement('button');
-        pinBtn.type = 'button';
-        pinBtn.className = `countdown-inline-btn countdown-inline-btn-pin${item.pinned ? ' is-active' : ''}`;
-        pinBtn.title = item.pinned ? '取消置顶' : '置顶';
-        pinBtn.innerHTML = '<i class="fa-solid fa-thumbtack"></i>';
-        pinBtn.addEventListener('click', function () { togglePinCountdown(index); });
+        // 使用工厂函数创建 5 个功能按钮
+        actions.appendChild(createEditButton({
+            icon: 'fa-thumbtack',
+            title: item.pinned ? '取消置顶' : '置顶',
+            className: item.pinned ? 'is-active' : '',
+            onClick: () => togglePinCountdown(index)
+        }));
 
-        const upBtn = document.createElement('button');
-        upBtn.type = 'button';
-        upBtn.className = 'countdown-inline-btn';
-        upBtn.title = '上移';
-        upBtn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
-        upBtn.disabled = index === 0;
-        upBtn.addEventListener('click', function () { moveCountdown(index, -1); });
+        actions.appendChild(createEditButton({
+            icon: 'fa-arrow-up',
+            title: '上移',
+            disabled: index === 0,
+            onClick: () => moveCountdown(index, -1)
+        }));
 
-        const downBtn = document.createElement('button');
-        downBtn.type = 'button';
-        downBtn.className = 'countdown-inline-btn';
-        downBtn.title = '下移';
-        downBtn.innerHTML = '<i class="fa-solid fa-arrow-down"></i>';
-        downBtn.disabled = index === countdownData.length - 1;
-        downBtn.addEventListener('click', function () { moveCountdown(index, 1); });
+        actions.appendChild(createEditButton({
+            icon: 'fa-arrow-down',
+            title: '下移',
+            disabled: index === countdownData.length - 1,
+            onClick: () => moveCountdown(index, 1)
+        }));
 
-        const editBtn = document.createElement('button');
-        editBtn.type = 'button';
-        editBtn.className = 'countdown-inline-btn countdown-inline-btn-edit';
-        editBtn.title = '编辑';
-        editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
-        editBtn.addEventListener('click', function () { beginEditCountdown(index); });
+        actions.appendChild(createEditButton({
+            icon: 'fa-pen',
+            title: '编辑',
+            className: 'countdown-inline-btn-edit',
+            onClick: () => beginEditCountdown(index)
+        }));
 
-        const delBtn = document.createElement('button');
-        delBtn.type = 'button';
-        delBtn.className = 'countdown-inline-btn countdown-inline-btn-delete';
-        delBtn.title = '删除';
-        delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
-        delBtn.addEventListener('click', function () { delCountdown(index); });
+        actions.appendChild(createEditButton({
+            icon: 'fa-trash',
+            title: '删除',
+            className: 'countdown-inline-btn-delete',
+            onClick: () => delCountdown(index)
+        }));
 
-        actions.appendChild(pinBtn);
-        actions.appendChild(upBtn);
-        actions.appendChild(downBtn);
-        actions.appendChild(editBtn);
-        actions.appendChild(delBtn);
         div.appendChild(meta);
         div.appendChild(actions);
         listDiv.appendChild(div);

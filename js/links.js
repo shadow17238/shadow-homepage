@@ -277,8 +277,7 @@ function updateClock() {
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-GB', { hour12: false });
     const dateStr = now.toLocaleDateString('zh-CN');
-    const weekArr = [ '周日', '周一', '周二', '周三', '周四', '周五', '周六' ];
-    const weekStr = weekArr[now.getDay()];
+    const weekStr = WEEKDAY_NAMES[now.getDay()];
 
     document.getElementById('clockTime').innerText = timeStr;
     document.getElementById('clockDate').innerText = `${dateStr} ${weekStr}`;
