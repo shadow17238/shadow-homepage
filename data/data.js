@@ -11,13 +11,13 @@ const defaultData = [
             { "name": "查老师", "url": "https://github.com/zjuchalaoshi/chalaoshi?tab=readme-ov-file" },
             { "name": "新生宝典", "url": "https://zjuers.com/welcome/" },
             { "name": "智云课堂", "url": "https://classroom.zju.edu.cn/" },
-            { "name": "网上报名", "url": "obsidian://open" },
+            { "name": "obsidian", "url": "obsidian://open" },
             { "name": "教务网(研)", "url": "https://yjsy.zju.edu.cn/dashboard/analysis?ticket=ST-14583891-ATR7PD2izMJ5uPzPe7AD-zju.edu.cn" },
             { "name": "研在浙大", "url": "https://yjsy.zju.edu.cn/" },
-            { "name": "PTA", "url": "clash://" },
+            { "name": "clash", "url": "clash://" },
             { "name": "素质拓展网", "url": "https://sztz.zju.edu.cn/dekt/#/index/main" },
             { "name": "教学资源管理", "url": "https://jxzygl.zju.edu.cn/zypt/teacher/home" },
-            { "name": "个人课表查询", "url": "weixin://" }
+            { "name": "微信", "url": "weixin://" }
         ]
     },
     {
@@ -49,7 +49,7 @@ const defaultData = [
             { "name": "NotebookLM", "url": "https://notebooklm.google.com/?icid=home_maincta" },
             { "name": "计财处", "url": "http://cwcx.zju.edu.cn/" },
             { "name": "ChatGPT", "url": "https://chatgpt.com/" },
-            { "name": "千问", "url": "https://chat.deepseek.com/a/chat/" },
+            { "name": "DeepSeek", "url": "https://chat.deepseek.com/a/chat/" },
             { "name": "数软作业", "url": "http://10.72.190.121:2025/problems" },
             { "name": "ZJU Charger", "url": "https://charger.philfan.cn/" }
         ]
