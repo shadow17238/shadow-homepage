@@ -20,7 +20,7 @@ IIFE-based modules with global state. Each JS file is loaded via `<script>` tags
 
 `utils.js` → `storage.js` → `app-state.js` → `stats-data.js` → `weather.js` → `links.js` → `search.js` → `script.js` → `backup.js` → `countdown.js` → `media.js` → `background.js`
 
-Two modules are **lazy-loaded on demand** via `loadScript()`: `stats-ui.js` (stats modal) and `media.js` (audio visualizer, camera, recording).
+One module is **lazy-loaded on demand** via `loadWithSpinner()` → `loadScript()`: `stats-ui.js` (stats modal, loaded when the stats button is clicked). `media.js` is loaded statically at page init.
 
 ### Module responsibilities
 
@@ -49,7 +49,7 @@ All persistent data flows through `localStorage` via `AppStorage`. The `AppState
 - **Vendor deps localized**: `vendor/` contains FontAwesome, fonts, lunar calendar, and pinyin-pro — no CDN reliance.
 - **CSS split**: `style.css` (global/layout), `stats.css` (stats panel), `weather.css` (weather widget).
 - **Default data**: in `data/data.js` (`defaultData`, `defaultCountdownData`, `defaultTitle`, `defaultClockPosition`).
-- **Lazy loading**: stats panel and media features are lazy-loaded to keep initial page weight low.
+- **Lazy loading**: stats panel (`stats-ui.js`) is lazy-loaded to keep initial page weight low. `media.js` is statically loaded.
 - **Edit mode**: Toggled via gear button; enables clock dragging, countdown management, link editing, and title editing.
 - **Feature fallbacks**: `utils.js` detects missing dependencies (FontAwesome, pinyin-pro, Lunar) and degrades gracefully.
 
