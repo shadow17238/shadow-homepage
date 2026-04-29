@@ -1,109 +1,92 @@
 # Shadow's Homepage
 
-一个基于原生 JavaScript 构建的极简、美观且功能强大的个人仪表板/导航主页。
+一个零构建工具的个人导航主页，纯原生 HTML/CSS/JavaScript 实现，双击即可打开使用。
 
-本项目采用 **原生优先 (Vanilla First)** 的开发理念，在不使用任何现代重型框架（如 React/Vue）的前提下，实现了复杂的交互、数据持久化、音频可视化及实时统计功能。
+<img src="images/111.png" alt="预览" style="zoom:75%;" />
 
-<img src="images/111.png" style="zoom:50%;" />
+## 功能特性
 
-## 🌟 核心特性
+- **链接导航** — 按分类组织的网址卡片，支持自定义编辑、右键菜单操作，以及 `weixin://`、`obsidian://` 等应用协议直链
+- **多引擎搜索** — 支持 Bing / Google / GitHub 切换，内置搜索历史（拼音匹配），偏好自动持久化
+- **天气挂件** — OpenWeatherMap 实时天气、3 小时降雨概率、今日/明日预报，支持城市选择与自定义配置
+- **倒数日管理** — 普通日期、公历生日、农历生日三种类型，支持置顶排序与农历日历联动
+- **数据统计** — 点击次数追踪、在线时长记录、按日/周/月聚合的趋势图表与排行榜
+- **粒子背景** — Canvas 交互式粒子网络系统，跟随鼠标产生形变效果
+- **环境音律动** — 麦克风采集音频并实时可视化，搭配每日自动刷新的一言语录
+- **摄像头悬浮窗** — 可拖拽的画中画摄像头窗口，支持录制与导出（WebM/MP4）
+- **明暗主题** — 一键切换浅色 / 深色模式
+- **数据备份** — JSON 格式导入/导出全部配置，版本感知与数据校验
+- **玻璃拟态 UI** — 统一的毛玻璃卡片风格，极光渐变装饰，全局视觉语言一致
 
-- **模块化架构**：经历深度重构，核心逻辑按领域拆分，代码高内聚低耦合。
-- **实时天气**：集成 OpenWeatherMap API，支持城市自定义及三小时降雨预报。
-- **智能搜索**：多搜索引擎切换（Bing/Google/GitHub），支持拼音模糊匹配的搜索历史。
-- **动态背景**：内置视频背景与交互式 Canvas 粒子系统，支持跟随鼠标律动。
-- **全方位统计**：记录网页点击频次、在线时长，并生成最近 30 天的趋势图表。
-- **倒数日管理**：支持公历/农历生日自动续期，支持项位置置顶与排序。
-- **媒体实验室**：内置环境音频谱可视化、摄像头悬浮窗预览及视频录制导出功能。
-- **数据安全**：全量数据本地存储，提供 JSON 格式的一键备份与恢复。
+## 快速开始
 
-## 🛠️ 技术栈
+直接双击 `index.html` 即可浏览（部分浏览器可能限制麦克风/摄像头权限）。
 
-- **核心**：HTML5, CSS3 (高级渐变、Glassmorphism 磨砂质感), ECMAScript 6+
-- **图形/动画**：Canvas API (粒子系统、频谱渲染), CSS Keyframes
-- **多媒体**：Web Audio API, MediaDevices API, MediaRecorder API
-- **第三方库 (Vendor)**：
-    - `lunar.js`：农历算法支持。
-    - `pinyin-pro`：搜索历史的拼音匹配。
-    - `FontAwesome 6`：矢量图标库。
+如需完整功能体验，启动本地服务：
 
-## 📁 目录结构说明
-
-```text
-F:/shadow's homepage/
-├── index.html          # 页面主体结构
-├── css/                # 样式目录
-│   ├── style.css       # 全局主题、布局及核心组件样式
-│   ├── stats.css       # 统计分析大屏专属样式
-│   └── weather.css     # 天气挂件及详情面板样式
-├── data/
-│   └── data.js         # 默认链接、倒数日及坐标配置
-├── js/                 # 逻辑目录
-│   ├── script.js       # 主入口，负责事件分发与初始化
-│   ├── app-state.js    # 统一状态管理中心 (AppState)
-│   ├── storage.js      # 本地存储持久化封装 (AppStorage)
-│   ├── utils.js        # 通用工具函数与常量 (共享常量、深拷贝等)
-│   ├── links.js        # 链接渲染、拖拽及编辑逻辑
-│   ├── weather.js      # 天气模块 (API 请求与渲染)
-│   ├── search.js       # 搜索逻辑与历史记录管理
-│   ├── countdown.js    # 倒数日算法及管理表单
-│   ├── stats-data.js   # 统计数据处理与摘要计算
-│   ├── stats-ui.js     # 统计图表渲染 (SVG 动态生成)
-│   ├── media.js        # 音频可视化与摄像头控制
-│   ├── background.js   # 粒子背景动画逻辑
-│   └── backup.js       # 数据导入导出逻辑
-├── vendor/             # 第三方依赖库
-├── images/             # 静态图标与头像资源
-└── wallpaper/          # 视频背景资源
-```
-
-## 🚀 环境搭建与启动
-
-### 1. 克隆项目
 ```bash
-git clone https://github.com/shadow17238/shadow-homepage.git
-cd shadow-homepage
+python -m http.server 8000
 ```
 
-### 2. 启动开发环境
-由于项目涉及 `fetch` 请求及多媒体权限，**不建议**直接双击 `index.html` 打开。请使用本地 Web 服务器启动：
+然后访问 http://localhost:8000
 
-- **VS Code 用户**：安装 `Live Server` 插件，右键 `index.html` 选择 "Open with Live Server"。
-- **Node.js 用户**：
-  ```bash
-  npx serve .
-  ```
-- **Python 用户**：
-  ```bash
-  python -m http.server 8000
-  ```
+## 项目结构
 
-### 3. 配置天气
-默认使用内置测试 Key。如需稳定使用，请前往 [OpenWeatherMap](https://openweathermap.org/) 申请免费 Key，点击页面天气挂件 -> 设置按钮进行配置。
+```
+├── index.html              # 入口页面
+├── css/
+│   ├── style.css           # 全局布局与组件样式
+│   ├── stats.css           # 统计面板样式
+│   └── weather.css         # 天气挂件样式
+├── js/
+│   ├── utils.js            # 工具函数：HTML 转义、JSON 解析、特性检测
+│   ├── storage.js          # localStorage 封装
+│   ├── app-state.js        # 全局状态管理
+│   ├── stats-data.js       # 点击追踪与在线时长统计
+│   ├── weather.js          # 天气模块（OpenWeatherMap）
+│   ├── links.js            # 链接渲染、拖拽时钟、右键菜单
+│   ├── search.js           # 搜索引擎切换与历史记录
+│   ├── script.js           # 入口初始化与事件绑定
+│   ├── backup.js           # JSON 导入/导出
+│   ├── countdown.js        # 倒数日（含农历支持）
+│   ├── media.js            # 音频可视化、摄像头、录制（按需加载）
+│   ├── background.js       # 粒子背景动画
+│   └── stats-ui.js         # 统计面板 UI（按需加载）
+├── data/
+│   └── data.js             # 默认链接数据与倒数日
+├── images/                 # 头像、图标资源
+├── wallpaper/              # 背景视频
+└── vendor/                 # 本地化第三方库
+    ├── fontawesome/        # FontAwesome 图标
+    ├── fonts/              # 马善政毛笔字体
+    ├── lunar/              # 农历库
+    └── pinyin/             # 拼音匹配库
+```
 
-## ⚙️ 核心功能开发说明
+## 技术栈
 
-### 增加新功能
-1. 在 `js/` 目录下创建独立的 `.js` 文件。
-2. 在 `index.html` 末尾按依赖顺序引入。
-3. 在 `js/script.js` 的 `bindEventListeners` 中添加对应的事件绑定函数。
+- **HTML5 / CSS3 / ES6+** — 无框架依赖
+- **IIFE 模块化** — 各 JS 文件按依赖顺序加载，通过 `window` 全局状态通信
+- **Canvas 2D** — 粒子背景与音频可视化
+- **LocalStorage** — 全部数据持久化，支持导入/导出
 
-### 数据持久化
-所有用户配置通过 `js/storage.js` 统一管理，数据存储在 `localStorage` 中。修改 `data/data.js` 可调整新用户的初始化默认值。
+## 设计决策
 
-## 🌐 部署方式
+- **零构建** — 无打包工具、无转译、无测试框架，编辑文件后刷新浏览器即可
+- **零 CDN** — 所有第三方依赖（FontAwesome、字体、农历库、拼音库）本地化存储
+- **渐进降级** — `utils.js` 检测依赖缺失时自动降级，不影响核心功能
+- **按需加载** — 统计面板与媒体功能延迟加载，减小首屏体积
 
-本项目为纯静态应用，可部署至任何支持静态托管的平台：
+## 数据配置
 
-1.  **GitHub Pages**：
-    - 推送代码至 GitHub。
-    - 在仓库设置 (Settings) -> Pages 中选择 `main` 分支即可。
-2.  **Vercel / Netlify**：直接关联仓库，一键发布。
-3.  **私有服务器**：将所有文件上传至 Nginx/Apache 的 `www` 目录。
+所有持久化数据存储在浏览器 `localStorage` 中，可通过页面右上角的导入/导出按钮进行备份与恢复。
 
-## 📜 开源协议
+默认链接数据定义在 `data/data.js` 的 `defaultData` 数组中，按分类组织。
 
-本项目遵循 MIT License。您可以自由地进行二次开发和分发。
+## 更新日志
 
----
-*Created by [shadow17238](https://github.com/shadow17238)*
+详见 [CHANGELOG.md](CHANGELOG.md)
+
+## License
+
+MIT

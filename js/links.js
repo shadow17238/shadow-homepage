@@ -121,16 +121,18 @@ function handleLinkContextMenu(e, catIndex, linkIndex) {
 function renderLinks() {
     const container = document.getElementById('linkContainer');
     if (!container) return;
-    container.innerHTML = '';
 
     // 如果没有数据，显示空状态提示
     if (!appData || appData.length === 0) {
         const emptyDiv = document.createElement('div');
         emptyDiv.className = 'empty-state';
         emptyDiv.textContent = '暂无链接数据，点击右上角齿轮图标进入编辑模式添加。';
-        container.appendChild(emptyDiv);
+        container.replaceChildren(emptyDiv);
         return;
     }
+
+    // 使用 DocumentFragment 批量构建，最后一次替换
+    const fragment = document.createDocumentFragment();
 
     // 遍历分类并创建对应的 DOM 结构
     appData.forEach((cat, catIndex) => {
@@ -149,33 +151,58 @@ function renderLinks() {
 
         // 遍历该分类下的所有链接
         cat.links.forEach((link, linkIndex) => {
-            const a = document.createElement('div'); // 使用 div 代替 a 标签以统一处理逻辑
+            const a = document.createElement('div');
             const enabled = isLinkEnabled(link.url);
 
             a.className = enabled ? 'link-card' : 'link-card link-card-disabled';
             a.textContent = link.name || (isEditMode ? '未设置' : '');
 
-            // 绑定左键点击逻辑
-            a.onclick = (e) => {
-                if (isEditMode) {
-                    // 编辑模式下点击打开编辑对话框
-                    openEditModal(catIndex, linkIndex);
-                } else if (enabled) {
-                    // 正常模式下记录点击次数并跳转
-                    incrementClickCount(link);
-                    openLinkTarget(link.url);
-                }
-            };
-
-            // 绑定右键点击逻辑
-            a.oncontextmenu = (e) => handleLinkContextMenu(e, catIndex, linkIndex);
+            // 通过 data 属性存储索引，事件委托统一处理
+            a.dataset.catIndex = catIndex;
+            a.dataset.linkIndex = linkIndex;
 
             linksWrapper.appendChild(a);
         });
 
         groupDiv.appendChild(linksWrapper);
-        container.appendChild(groupDiv);
+        fragment.appendChild(groupDiv);
     });
+
+    container.replaceChildren(fragment);
+}
+
+/**
+ * 事件委托：统一处理链接卡片的左键点击
+ */
+function handleLinkContainerClick(e) {
+    const card = e.target.closest('.link-card');
+    if (!card) return;
+
+    const catIndex = parseInt(card.dataset.catIndex, 10);
+    const linkIndex = parseInt(card.dataset.linkIndex, 10);
+    const link = appData[catIndex]?.links[linkIndex];
+    if (!link) return;
+
+    const enabled = isLinkEnabled(link.url);
+
+    if (isEditMode) {
+        openEditModal(catIndex, linkIndex);
+    } else if (enabled) {
+        incrementClickCount(link);
+        openLinkTarget(link.url);
+    }
+}
+
+/**
+ * 事件委托：统一处理链接卡片的右键菜单
+ */
+function handleLinkContainerContextMenu(e) {
+    const card = e.target.closest('.link-card');
+    if (!card) return;
+
+    const catIndex = parseInt(card.dataset.catIndex, 10);
+    const linkIndex = parseInt(card.dataset.linkIndex, 10);
+    handleLinkContextMenu(e, catIndex, linkIndex);
 }
 
 /**

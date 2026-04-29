@@ -63,3 +63,10 @@ appData → AppState.persistAppData() → AppStorage.setAppData() → localStora
 
 Search history uses `AppState.searchHistory` (Array of strings, max 100).
 Analytics data uses `analyticsData` (object with `daily` and `links` sub-objects).
+
+## 重点提示
+
+- 每次回答问题称呼我为“shadow大人”
+- 不能写兼容性代码，除非我要求
+- 遇到重大代码设计问题，必须要询问shadow
+- 创建一个更新日志.md文件，每次对代码进行了修改，都必须写进去，时间戳精确到秒，不能修改前面的内容，只能新写入

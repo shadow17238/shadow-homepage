@@ -153,14 +153,7 @@ const defaultData = [
  * 默认倒数日数据
  * 支持农历、公历生日及普通倒计时
  */
-const defaultCountdownData = [
-    { "name": "我的生日", "type": "lunar_bday", "lunarM": "1", "lunarD": "5", "dateStr": "" },
-    { "name": "奶奶生日", "type": "lunar_bday", "lunarM": "10", "lunarD": "3", "dateStr": "" },
-    { "name": "妈妈生日", "type": "lunar_bday", "lunarM": "3", "lunarD": "4", "dateStr": "" },
-    { "name": "爷爷生日", "type": "lunar_bday", "lunarM": "6", "lunarD": "29", "dateStr": "" },
-    { "name": "爸爸生日", "type": "lunar_bday", "lunarM": "9", "lunarD": "14", "dateStr": "" },
-    { "name": "妹妹生日", "type": "lunar_bday", "lunarM": "9", "lunarD": "15", "dateStr": "" }
-];
+const defaultCountdownData = [];
 
 // 默认悬浮时钟在屏幕上的坐标
 const defaultClockPosition = {

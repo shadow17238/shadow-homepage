@@ -4,8 +4,8 @@
  */
 
 const WeatherConfig = {
-    // 默认 API Key (仅供演示或初次使用)
-    DEFAULT_API_KEY: 'bc47fd8b178e38e8488459bb5f0c4a5f',
+    // 默认 API Key（留空，用户需自行配置）
+    DEFAULT_API_KEY: '',
     // 默认城市 (杭州)
     DEFAULT_CITY: 'Hangzhou,CN',
     // OpenWeatherMap API 基础链接
@@ -219,7 +219,7 @@ const WeatherApp = {
             <div class="weather-info">
                 <div class="weather-temp-row">
                     <span>${d.temp}°C</span>
-                    <span class="weather-city-name">${d.city}</span>
+                    <span class="weather-city-name">${escapeHTML(d.city)}</span>
                 </div>
                 <div class="weather-pop-info">
                     <i class="fa-solid fa-droplet"></i> ${d.rainProb}% 降雨
@@ -254,7 +254,7 @@ const WeatherApp = {
         const d = weatherData;
         const forecastHtml = d.daily.map(f => `
             <div class="weather-forecast-row" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <span style="flex: 1;">${f.weekday}</span>
+                <span style="flex: 1;">${escapeHTML(f.weekday)}</span>
                 <i class="fa-solid ${this.getWeatherIcon(f.weatherId)}" style="flex: 1; text-align: center; color: #ffeb3b;"></i>
                 <span style="flex: 1; text-align: right; font-weight: 500;">${f.tempMax}° / ${f.tempMin}°</span>
             </div>
@@ -270,7 +270,7 @@ const WeatherApp = {
 
         details.innerHTML = `
             <div class="weather-panel-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <span class="weather-panel-title" style="font-weight: bold; font-size: 16px;"><i class="fa-solid fa-location-dot"></i> ${d.city}</span>
+                <span class="weather-panel-title" style="font-weight: bold; font-size: 16px;"><i class="fa-solid fa-location-dot"></i> ${escapeHTML(d.city)}</span>
                 <button class="stats-close-btn" id="weatherSettingsInnerBtn" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
                     <i class="fa-solid fa-gear" style="font-size: 14px;"></i>
                 </button>
@@ -279,7 +279,7 @@ const WeatherApp = {
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <span style="font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #fff, #81d4fa); -webkit-background-clip: text; color: transparent;">${d.temp}°C</span>
                     <div style="text-align: right;">
-                        <div style="font-weight: 600;">${d.description}</div>
+                        <div style="font-weight: 600;">${escapeHTML(d.description)}</div>
                         <div style="font-size: 12px; opacity: 0.6;">湿度 ${d.humidity}%</div>
                     </div>
                 </div>
@@ -461,8 +461,6 @@ const WeatherApp = {
         }
 
         let key = apiInput.value.trim();
-        // 如果为空，则自动回退到默认公开 Key
-        if (!key) key = WeatherConfig.DEFAULT_API_KEY;
 
         if (!city) {
             alert('请输入城市名称');

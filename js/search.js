@@ -3,6 +3,10 @@
  */
 const MAX_HISTORY_ITEMS = 100;
 /**
+ * 搜索历史浮层最多显示条数（存储保留 100 条，显示限制以减少 DOM 开销）
+ */
+const MAX_HISTORY_DISPLAY = 15;
+/**
  * 标记是否已绑定关闭搜索历史浮层的全局点击监听器
  */
 let isSearchHistoryListenerBound = false;
@@ -300,7 +304,7 @@ function ensureHistoryListenersBound() {
         isSearchHistoryListenerBound = true;
         setTimeout(() => {
             document.addEventListener('click', closeSearchHistory);
-        }, 100);
+        }, 0);
     }
 
     if (!isSearchHistoryPositionListenerBound) {
@@ -324,12 +328,14 @@ function showSearchHistory() {
     }
 
     const query = searchInput ? searchInput.value : '';
-    const sortedHistory = getSortedSearchHistory(query);
-    
+    const sortedHistory = getSortedSearchHistory(query).slice(0, MAX_HISTORY_DISPLAY);
+
     historyContainer.style.display = 'block';
-    historyContainer.innerHTML = '';
-    historyContainer.appendChild(buildHistoryHeader());
-    historyContainer.appendChild(buildHistoryList(sortedHistory));
+    // 使用 replaceChildren 批量替换子节点，避免 innerHTML 清空导致的强制 reflow
+    historyContainer.replaceChildren(
+        buildHistoryHeader(),
+        buildHistoryList(sortedHistory)
+    );
 
     updateSearchHistoryPosition();
     ensureHistoryListenersBound();

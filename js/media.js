@@ -6,6 +6,9 @@ function drawVisualizer() {
     // 递归调用以实现持续动画
     animationId = requestAnimationFrame(drawVisualizer);
 
+    // 页面不可见时跳过渲染，节省 CPU
+    if (!isPageVisible) return;
+
     // 获取当前频率数据
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
@@ -115,16 +118,21 @@ function drawStaticLine() {
     if (textField) textField.style.opacity = '1';
 }
 
-// 缓存摄像头窗口相关的 DOM 元素
-const cameraWin = document.getElementById('camera-window');
-const cameraHeader = document.getElementById('camera-header');
-const recordBtn = document.getElementById('recordBtn');
-const timerDisplay = document.getElementById('record-timer');
+// 懒初始化摄像头窗口相关的 DOM 元素，避免脚本解析阶段依赖 DOM 就绪
+let cameraWin, cameraHeader, recordBtn, timerDisplay;
+function cacheMediaDOM() {
+    if (cameraWin) return;
+    cameraWin = document.getElementById('camera-window');
+    cameraHeader = document.getElementById('camera-header');
+    recordBtn = document.getElementById('recordBtn');
+    timerDisplay = document.getElementById('record-timer');
+}
 
 /**
  * 开始录制摄像头视频
  */
 function startRecording() {
+    cacheMediaDOM();
     if (!cameraStream) return;
 
     recordedChunks = [];
@@ -163,6 +171,7 @@ function startRecording() {
  * 停止录制
  */
 function stopRecording() {
+    cacheMediaDOM();
     if (mediaRecorder) {
         mediaRecorder.stop();
     }
@@ -227,6 +236,7 @@ function stopTimer() {
  * 关闭摄像头并重置状态
  */
 function closeCamera() {
+    cacheMediaDOM();
     const videoEl = document.getElementById('camera-feed');
     const btn = document.getElementById('cameraBtn');
 
@@ -249,5 +259,6 @@ function closeCamera() {
  * 切换摄像头窗口最小化状态
  */
 function toggleCameraMin() {
-    cameraWin.classList.toggle('minimized');
+    cacheMediaDOM();
+    if (cameraWin) cameraWin.classList.toggle('minimized');
 }

@@ -130,7 +130,9 @@ function checkBackupReminder() {
  * 绑定主题切换相关的事件
  */
 function bindThemeEvents() {
-    document.getElementById('themeBtn').addEventListener('click', function() {
+    const btn = document.getElementById('themeBtn');
+    if (!btn) return;
+    btn.addEventListener('click', function() {
         document.body.classList.toggle('dark-mode');
         const icon = this.querySelector('i');
 
@@ -149,10 +151,13 @@ function bindThemeEvents() {
  */
 function bindStatsEvents() {
     // 打开面板
-    document.getElementById('statsBtn').addEventListener('click', async function() {
-        await loadWithSpinner(this, 'js/stats-ui.js', 'openStatsModal');
-        if (typeof openStatsModal !== 'undefined') openStatsModal();
-    });
+    const statsBtn = document.getElementById('statsBtn');
+    if (statsBtn) {
+        statsBtn.addEventListener('click', async function() {
+            await loadWithSpinner(this, 'js/stats-ui.js', 'openStatsModal');
+            if (typeof openStatsModal !== 'undefined') openStatsModal();
+        });
+    }
 
     // 统计范围切换
     document.querySelectorAll('#statsRangeSwitcher .stats-range-btn').forEach(function(btn) {
@@ -164,9 +169,12 @@ function bindStatsEvents() {
     });
 
     // 关闭按钮
-    document.getElementById('statsCloseBtn').addEventListener('click', function() {
-        if (typeof closeStatsModal === 'function') closeStatsModal();
-    });
+    const closeBtn = document.getElementById('statsCloseBtn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            if (typeof closeStatsModal === 'function') closeStatsModal();
+        });
+    }
 }
 
 /**
@@ -174,24 +182,30 @@ function bindStatsEvents() {
  */
 function bindEditEvents() {
     // 切换编辑模式
-    document.getElementById('editBtn').addEventListener('click', function() {
-        isEditMode = !isEditMode;
-        this.classList.toggle('active');
-        document.body.classList.toggle('edit-mode');
-        
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.placeholder = isEditMode
-                ? '现在是编辑模式，点击任意卡片即可修改...'
-                : ' 请输入搜索内容~';
-        }
-        renderLinks();
-    });
+    const editBtn = document.getElementById('editBtn');
+    if (editBtn) {
+        editBtn.addEventListener('click', function() {
+            isEditMode = !isEditMode;
+            this.classList.toggle('active');
+            document.body.classList.toggle('edit-mode');
+
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.placeholder = isEditMode
+                    ? '现在是编辑模式，点击任意卡片即可修改...'
+                    : ' 请输入搜索内容~';
+            }
+            renderLinks();
+        });
+    }
 
     // 点击艺术字标题
-    document.getElementById('artText').addEventListener('click', function() {
-        editTitle();
-    });
+    const artText = document.getElementById('artText');
+    if (artText) {
+        artText.addEventListener('click', function() {
+            editTitle();
+        });
+    }
 }
 
 /**
@@ -205,8 +219,10 @@ function bindSearchEvents() {
     searchInput.addEventListener('keypress', handleSearch);
     searchInput.addEventListener('focus', showSearchHistory);
 
-    document.getElementById('searchBtn').addEventListener('click', doSearch);
-    document.getElementById('clearHistoryBtn').addEventListener('click', clearSearchHistory);
+    const searchBtn = document.getElementById('searchBtn');
+    if (searchBtn) searchBtn.addEventListener('click', doSearch);
+    const clearBtn = document.getElementById('clearHistoryBtn');
+    if (clearBtn) clearBtn.addEventListener('click', clearSearchHistory);
 }
 
 /**
@@ -214,78 +230,90 @@ function bindSearchEvents() {
  */
 function bindMediaEvents() {
     // 音频可视化
-    document.getElementById('audioVisualBtn').addEventListener('click', async function() {
-        await loadWithSpinner(this, 'js/media.js', 'drawVisualizer');
+    const audioBtn = document.getElementById('audioVisualBtn');
+    if (audioBtn) {
+        audioBtn.addEventListener('click', async function() {
+            await loadWithSpinner(this, 'js/media.js', 'drawVisualizer');
 
-        if (!isVisualizerOn) {
-            try {
-                audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                } else if (audioCtx.state === 'suspended') {
-                    await audioCtx.resume();
+            if (!isVisualizerOn) {
+                try {
+                    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    if (!audioCtx) {
+                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    } else if (audioCtx.state === 'suspended') {
+                        await audioCtx.resume();
+                    }
+                    analyser = audioCtx.createAnalyser();
+                    analyser.fftSize = 256;
+                    source = audioCtx.createMediaStreamSource(audioStream);
+                    source.connect(analyser);
+                    isVisualizerOn = true;
+                    this.classList.add('active');
+                    drawVisualizer();
+                } catch (err) {
+                    console.error('麦克风启动失败:', err);
+                    alert('无法获取麦克风权限，请检查浏览器设置。');
                 }
-                analyser = audioCtx.createAnalyser();
-                analyser.fftSize = 256;
-                source = audioCtx.createMediaStreamSource(audioStream);
-                source.connect(analyser);
-                isVisualizerOn = true;
-                this.classList.add('active');
-                drawVisualizer();
-            } catch (err) {
-                console.error('麦克风启动失败:', err);
-                alert('无法获取麦克风权限，请检查浏览器设置。');
+            } else {
+                isVisualizerOn = false;
+                this.classList.remove('active');
+                if (animationId) cancelAnimationFrame(animationId);
+                if (audioStream) audioStream.getTracks().forEach(track => track.stop());
+                if (source) source.disconnect();
+                if (analyser) analyser.disconnect();
+                drawStaticLine();
             }
-        } else {
-            isVisualizerOn = false;
-            this.classList.remove('active');
-            if (animationId) cancelAnimationFrame(animationId);
-            if (audioStream) audioStream.getTracks().forEach(track => track.stop());
-            if (source) source.disconnect();
-            if (analyser) analyser.disconnect();
-            drawStaticLine();
-        }
-    });
+        });
+    }
 
     // 摄像头
-    document.getElementById('cameraBtn').addEventListener('click', async function() {
-        await loadWithSpinner(this, 'js/media.js', 'closeCamera');
-        if (cameraStream) {
-            closeCamera();
-            return;
-        }
-        try {
-            cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            const videoEl = document.getElementById('camera-feed');
-            if (videoEl) {
-                videoEl.srcObject = cameraStream;
-                videoEl.muted = true;
-                videoEl.play();
+    const cameraBtn = document.getElementById('cameraBtn');
+    if (cameraBtn) {
+        cameraBtn.addEventListener('click', async function() {
+            await loadWithSpinner(this, 'js/media.js', 'closeCamera');
+            if (cameraStream) {
+                closeCamera();
+                return;
             }
-            const cameraWin = document.getElementById('camera-window');
-            if (cameraWin) {
-                cameraWin.style.display = 'flex';
-                cameraWin.classList.remove('camera-window-hidden');
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const videoEl = document.getElementById('camera-feed');
+                if (videoEl) {
+                    videoEl.srcObject = cameraStream;
+                    videoEl.muted = true;
+                    videoEl.play();
+                }
+                const cameraWin = document.getElementById('camera-window');
+                if (cameraWin) {
+                    cameraWin.style.display = 'flex';
+                    cameraWin.classList.remove('camera-window-hidden');
+                }
+                this.classList.add('active');
+            } catch (err) {
+                console.error(err);
+                alert('无法访问摄像头或麦克风：' + err.message);
             }
-            this.classList.add('active');
-        } catch (err) {
-            console.error(err);
-            alert('无法访问摄像头或麦克风：' + err.message);
-        }
-    });
+        });
+    }
 
     // 录制控制
-    document.getElementById('recordBtn').addEventListener('click', function() {
-        if (!isRecording) startRecording();
-        else stopRecording();
-    });
+    const recordBtn = document.getElementById('recordBtn');
+    if (recordBtn) {
+        recordBtn.addEventListener('click', function() {
+            if (!isRecording) startRecording();
+            else stopRecording();
+        });
+    }
 
     // 窗口控制
-    document.getElementById('cameraCloseBtn').addEventListener('click', closeCamera);
-    document.getElementById('cameraMinBtn').addEventListener('click', toggleCameraMin);
+    const camCloseBtn = document.getElementById('cameraCloseBtn');
+    if (camCloseBtn) camCloseBtn.addEventListener('click', closeCamera);
+    const camMinBtn = document.getElementById('cameraMinBtn');
+    if (camMinBtn) camMinBtn.addEventListener('click', toggleCameraMin);
 
     // 一言点击刷新
-    document.getElementById('audioText').addEventListener('click', updateDailyHitokoto);
+    const audioText = document.getElementById('audioText');
+    if (audioText) audioText.addEventListener('click', updateDailyHitokoto);
 }
 
 /**
@@ -304,29 +332,40 @@ function bindModalOverlayEvents() {
  * 绑定模态框（主要是编辑链接弹窗）内部按钮事件
  */
 function bindModalButtonEvents() {
-    document.getElementById('modalCancelBtn').addEventListener('click', closeModal);
-    document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
-    document.getElementById('modalSaveBtn').addEventListener('click', saveData);
+    const cancelBtn = document.getElementById('modalCancelBtn');
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+    const closeBtn = document.getElementById('modalCloseBtn');
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    const saveBtn = document.getElementById('modalSaveBtn');
+    if (saveBtn) saveBtn.addEventListener('click', saveData);
 }
 
 /**
  * 绑定导入导出相关的事件
  */
 function bindImportExportEvents() {
-    document.getElementById('importBtn').addEventListener('click', triggerImport);
-    document.getElementById('exportBtn').addEventListener('click', exportData);
-    document.getElementById('importInput').addEventListener('change', function() {
-        importData(this);
-    });
+    const importBtn = document.getElementById('importBtn');
+    if (importBtn) importBtn.addEventListener('click', triggerImport);
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) exportBtn.addEventListener('click', exportData);
+    const importInput = document.getElementById('importInput');
+    if (importInput) {
+        importInput.addEventListener('change', function() {
+            importData(this);
+        });
+    }
 }
 
 /**
  * 绑定倒计时管理表单相关的事件
  */
 function bindCountdownFormEvents() {
-    document.getElementById('cdType').addEventListener('change', toggleCdInput);
-    document.getElementById('cdAddBtn').addEventListener('click', addCountdown);
-    document.getElementById('cdResetBtn').addEventListener('click', resetCountdownForm);
+    const cdType = document.getElementById('cdType');
+    if (cdType) cdType.addEventListener('change', toggleCdInput);
+    const cdAddBtn = document.getElementById('cdAddBtn');
+    if (cdAddBtn) cdAddBtn.addEventListener('click', addCountdown);
+    const cdResetBtn = document.getElementById('cdResetBtn');
+    if (cdResetBtn) cdResetBtn.addEventListener('click', resetCountdownForm);
 
     const closeBtns = ['cdCloseBtn', 'countdownCloseBtn'];
     closeBtns.forEach(id => {
@@ -362,7 +401,9 @@ function bindLifecycleEvents() {
  * 绑定时钟交互相关的事件
  */
 function bindClockEvents() {
-    document.getElementById('clock-box').addEventListener('click', function() {
+    const clockBox = document.getElementById('clock-box');
+    if (!clockBox) return;
+    clockBox.addEventListener('click', function() {
         if (this.dataset.suppressClick === 'true') {
             this.dataset.suppressClick = 'false';
             return;
@@ -390,6 +431,13 @@ function bindEventListeners() {
     // 初始化核心交互组件
     initClockDrag();
     initInteractiveBackground();
+
+    // 链接卡片事件委托
+    const linkContainer = document.getElementById('linkContainer');
+    if (linkContainer) {
+        linkContainer.addEventListener('click', handleLinkContainerClick);
+        linkContainer.addEventListener('contextmenu', handleLinkContainerContextMenu);
+    }
 }
 
 /**

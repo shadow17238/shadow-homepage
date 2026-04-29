@@ -2,6 +2,54 @@
 
 本文档按时间记录项目更新，包含更新时间与对应内容。
 
+## 2026-04-29
+
+### 更新时间
+- 2026-04-29 08:44:29
+
+### 更新内容
+- **[P0 安全修复]** 移除 `js/weather.js` 中硬编码的 OpenWeatherMap API Key，改为仅从用户本地配置读取，无配置时不再自动请求天气数据。
+- **[P0 性能修复]** 移除 `css/style.css` 中 `* { transition: background-color 0.3s, color 0.3s }` 全局过渡规则，改为仅在 `body`、`header`、`.stats-container` 等需要主题切换过渡的元素上添加针对性 transition，避免切换主题时浏览器对数百个 DOM 节点进行过渡检查导致的布局性能损耗。
+
+### 更新时间
+- 2026-04-29 08:47:10
+
+### 更新内容
+- **[P1 性能修复]** 为 `js/background.js` 和 `js/media.js` 的 `requestAnimationFrame` 循环添加 `isPageVisible` 检查，标签页隐藏时跳过渲染帧，避免白耗 CPU。状态由 `script.js` 中已有的 `visibilitychange` 监听器驱动。
+- **[P1 稳定性修复]** 为 `js/script.js` 中全部 30+ 个 `getElementById` 后的 `.addEventListener` 调用添加空值保护，任一 DOM 元素缺失时不再崩溃整个初始化流程。
+
+### 更新时间
+- 2026-04-29 08:50:31
+
+### 更新内容
+- **[P1 性能修复]** 优化 `js/search.js` 搜索历史浮层渲染：引入 `MAX_HISTORY_DISPLAY = 15` 常量，浮层最多显示 15 条匹配结果（存储仍保留 100 条），避免每次按键重建 100 条 DOM 节点导致的输入延迟。
+- **[P2 性能修复]** 将 `showSearchHistory()` 中的 `innerHTML = ''` + `appendChild` 替换为 `replaceChildren()` 批量子节点替换，减少强制 reflow 次数。
+- **[P2 交互修复]** 将搜索历史全局关闭监听器的 `setTimeout` 延迟从 100ms 降为 0ms，消除点击外部关闭浮层的短暂无响应窗口。
+
+### 更新时间
+- 2026-04-29 08:52:12
+
+### 更新内容
+- **[P2 性能修复]** 将 `js/links.js` 的 `renderLinks()` 中 `container.innerHTML = ''` 替换为 `DocumentFragment` + `container.replaceChildren(fragment)`，减少强制 reflow。
+- **[P2 性能修复]** 将 `js/countdown.js` 的 `refreshCountdowns()` 中 `wrapper.innerHTML = ''` 替换为 `DocumentFragment` + `wrapper.replaceChildren(fragment)`，减少强制 reflow。
+- **[P2 架构优化]** 将 `renderLinks()` 中每个链接卡片的 `onclick`/`oncontextmenu` 闭包替换为 `data-cat-index`/`data-link-index` 属性 + 容器级事件委托（`handleLinkContainerClick`、`handleLinkContainerContextMenu`），每次渲染从 ~120 个闭包降为 2 个共享监听器。
+- **[P2 代码清理]** 删除 `css/style.css` 中被覆盖的死代码 `:root` 变量定义块（第一块），仅保留第二块 transparent/rgba 版本。
+
+### 更新时间
+- 2026-04-29 08:55:23
+
+### 更新内容
+- **[P1 性能修复]** 优化 `js/background.js` Canvas 粒子渲染：将粒子绘制改为从预绘制的离屏 Canvas（`dotCanvas`）`drawImage` 复用渐变模板，每帧从创建 50+ 个 `createRadialGradient` 降为 0 个；连线绘制从 `createLinearGradient` 改为纯色 `rgba`，消除 GC 压力。
+- **[低 安全修复]** 为 `js/weather.js` 中 API 返回的城市名、天气描述等动态值添加 `escapeHTML()` 转义，防止潜在 XSS 注入。
+- **[低 稳定性修复]** 将 `js/media.js` 顶层直接执行的 `getElementById` 缓存改为懒初始化函数 `cacheMediaDOM()`，各使用函数入口处按需调用，避免脚本加载顺序变化时变量为 null 崩溃。
+- **[低 代码清理]** 删除 `index.html` 中非标准的 `rel="shortcut icon"` favicon 声明（IE 遗留），保留两个合规声明。
+
+### 更新时间
+- 2026-04-29 08:56:53
+
+### 更新内容
+- **[数据清理]** 清空 `data/data.js` 中 `defaultCountdownData` 的预设生日倒数日条目，初始化为空数组，用户需自行添加。
+
 ## 2026-04-25
 
 ### 更新时间

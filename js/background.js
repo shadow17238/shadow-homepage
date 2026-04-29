@@ -131,17 +131,11 @@ function initInteractiveBackground() {
         }
 
         /**
-         * 绘制单个粒子
+         * 绘制单个粒子（使用预绘制的渐变模板）
          */
         draw() {
-            const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-
-            ctx.fillStyle = gradient;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fill();
+            const size = this.size * 2;
+            ctx.drawImage(dotCanvas, this.x - this.size, this.y - this.size, size, size);
         }
     }
 
@@ -150,6 +144,20 @@ function initInteractiveBackground() {
     for (let i = 0; i < numPoints; i++) {
         points.push(new Point(i, numPoints));
     }
+
+    // 预绘制粒子径向渐变模板到离屏 Canvas，避免每帧每粒子重复创建 gradient 对象
+    const dotSize = 6; // 最大粒子半径
+    const dotCanvas = document.createElement('canvas');
+    dotCanvas.width = dotSize * 2;
+    dotCanvas.height = dotSize * 2;
+    const dotCtx = dotCanvas.getContext('2d');
+    const dotGradient = dotCtx.createRadialGradient(dotSize, dotSize, 0, dotSize, dotSize, dotSize);
+    dotGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+    dotGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    dotCtx.fillStyle = dotGradient;
+    dotCtx.beginPath();
+    dotCtx.arc(dotSize, dotSize, dotSize, 0, Math.PI * 2);
+    dotCtx.fill();
 
     let mouseX = canvas.width / 2;
     let mouseY = canvas.height / 2;
@@ -193,6 +201,10 @@ function initInteractiveBackground() {
      * 动画主循环
      */
     function animate() {
+        if (!isPageVisible) {
+            requestAnimationFrame(animate);
+            return;
+        }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         // 更新波动因子
@@ -217,11 +229,8 @@ function initInteractiveBackground() {
                 // 距离小于阈值时绘制连线，透明度随距离增加而降低
                 if (distance < 120) {
                     const opacity = 0.6 * (1 - distance / 120);
-                    const gradient = ctx.createLinearGradient(points[i].x, points[i].y, points[j].x, points[j].y);
-                    gradient.addColorStop(0, `rgba(255, 255, 255, ${opacity})`);
-                    gradient.addColorStop(1, `rgba(255, 255, 255, ${opacity * 0.5})`);
-
-                    ctx.strokeStyle = gradient;
+                    // 使用纯色替代 createLinearGradient，减少每帧对象分配
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
                     ctx.lineWidth = 1.5;
                     ctx.beginPath();
                     ctx.moveTo(points[i].x, points[i].y);

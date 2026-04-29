@@ -288,10 +288,11 @@ function refreshCountdowns() {
     }
 
     wrapper.style.display = 'block';
-    wrapper.innerHTML = '';
-
-    renderTopCountdown(sortedList[0], wrapper);
-    renderRemainingCountdowns(sortedList.slice(1), wrapper);
+    // 使用 DocumentFragment 批量构建，replaceChildren 一次替换
+    const fragment = document.createDocumentFragment();
+    renderTopCountdown(sortedList[0], fragment);
+    renderRemainingCountdowns(sortedList.slice(1), fragment);
+    wrapper.replaceChildren(fragment);
 }
 
 /**

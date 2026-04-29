@@ -2,6 +2,10 @@
    核心全局样式与变量
    ============================================================ */
 
+/* ============================================================
+   全局 CSS 变量定义：控制主题颜色、透明度、阴影等
+   ============================================================ */
+
 /* 动态背景视频：覆盖全屏，作为最底层背景 */
 #bg-video {
     position: fixed;
@@ -29,20 +33,7 @@
     --input-bg: #fff;
 }
 
-body.dark-mode {
-    --bg-color: #121212;
-    --header-bg: #1e1e1e;
-    --text-color: #bbbbbb;
-    --title-color: #e0e0e0;
-    --card-bg: #1e1e1e; --btn-bg: #2d2d2d;
-    --btn-hover: #383838;
-    --border-color: #333;
-    --shadow: 0 1px 3px rgba(0,0,0,0.4);
-    --modal-bg: #2d2d2d;
-    --input-bg: #333;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -52,6 +43,7 @@ body {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 header {
@@ -67,6 +59,7 @@ header {
     z-index: 2000; /* 提升 header 层级 */
     backdrop-filter: blur(10px);
     overflow: visible !important; /* 核心修复：允许天气面板溢出显示 */
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 .logo {
     font-size: 18px;
@@ -1306,6 +1299,7 @@ body.dark-mode .history-item:hover {
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 30px;
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .stat-item {
